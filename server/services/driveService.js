@@ -2,8 +2,8 @@ const { google } = require('googleapis');
 const path = require('path');
 const fs = require('fs');
 
-// Google Drive folder ID for backups
-const DRIVE_FOLDER_ID = '1iksarwV8HB08SfwnD6nryCooogKaTSvZ';
+// Google Drive folder ID for backups (Shared Drive)
+const DRIVE_FOLDER_ID = '1MhNkFlE_4rLoMFGltl4cTGJCNpWY96d7';
 
 let driveClient = null;
 
