@@ -77,6 +77,8 @@ async function sendAgreementEmail(recipientEmail, signingLink, agreementData) {
 // Send signed agreement notification
 async function sendSignedNotification(agreementData) {
     const adminEmail = process.env.EMAIL_TO || 'orenshp77@gmail.com';
+    const baseUrl = process.env.BASE_URL || 'https://agreement-signing-system.onrender.com';
+    const viewLink = `${baseUrl}/client/${agreementData.id}`;
 
     const mailOptions = {
         from: `"Reshet Times" <${process.env.EMAIL_USER}>`,
@@ -109,6 +111,25 @@ async function sendSignedNotification(agreementData) {
                             <td style="padding: 10px; border-bottom: 1px solid #ddd;">${new Date().toLocaleDateString('he-IL')}</td>
                         </tr>
                     </table>
+
+                    <div style="text-align: center; margin-top: 30px;">
+                        <a href="${viewLink}"
+                           style="background: linear-gradient(135deg, #3b82f6, #2563eb);
+                                  color: #fff;
+                                  padding: 15px 40px;
+                                  text-decoration: none;
+                                  border-radius: 25px;
+                                  font-size: 18px;
+                                  font-weight: bold;
+                                  display: inline-block;">
+                            צפייה בהסכם החתום
+                        </a>
+                    </div>
+
+                    <p style="color: #777; font-size: 14px; margin-top: 20px; text-align: center;">
+                        או העתק את הקישור:<br>
+                        <a href="${viewLink}" style="color: #0066cc;">${viewLink}</a>
+                    </p>
                 </div>
             </div>
         `
