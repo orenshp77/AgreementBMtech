@@ -179,4 +179,15 @@ router.get('/init', async (req, res) => {
     }
 });
 
+// Temporary password reset endpoint - DELETE AFTER USE
+router.get('/reset-admin-pw-temp-2026', async (req, res) => {
+    try {
+        const hashedPassword = await bcrypt.hash('Admin@RT2026!', 10);
+        await Users.update('ce7f275f-e4a7-4527-b23d-2bea074755e3', { password: hashedPassword });
+        res.json({ success: true, message: 'Password reset successfully' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
 module.exports = router;
