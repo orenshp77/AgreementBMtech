@@ -108,11 +108,16 @@ const OAUTH_CLIENT_ID = '1040161889673-t3pm2dod9esa0286h7gd6qk5aj1ovj9q.apps.goo
 const OAUTH_CLIENT_SECRET = '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';
 
 app.get('/setup-drive', (req, res) => {
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    // Use x-forwarded-proto for Render (behind reverse proxy)
+    const protocol = req.get('x-forwarded-proto') || req.protocol;
+    const baseUrl = `${protocol}://${req.get('host')}`;
+    const redirectUri = `${baseUrl}/oauth2callback`;
+    console.log('OAuth redirect URI:', redirectUri);
+
     const oauth2Client = new google.auth.OAuth2(
         OAUTH_CLIENT_ID,
         OAUTH_CLIENT_SECRET,
-        `${baseUrl}/oauth2callback`
+        redirectUri
     );
     const authUrl = oauth2Client.generateAuthUrl({
         access_type: 'offline',
@@ -127,11 +132,15 @@ app.get('/oauth2callback', async (req, res) => {
     if (!code) {
         return res.status(400).send('No code provided');
     }
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    // Use x-forwarded-proto for Render (behind reverse proxy)
+    const protocol = req.get('x-forwarded-proto') || req.protocol;
+    const baseUrl = `${protocol}://${req.get('host')}`;
+    const redirectUri = `${baseUrl}/oauth2callback`;
+
     const oauth2Client = new google.auth.OAuth2(
         OAUTH_CLIENT_ID,
         OAUTH_CLIENT_SECRET,
-        `${baseUrl}/oauth2callback`
+        redirectUri
     );
     try {
         const { tokens } = await oauth2Client.getToken(code);
