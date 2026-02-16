@@ -102,6 +102,64 @@ app.get('/editor', (req, res) => {
     res.sendFile(path.join(__dirname, '../public/editor.html'));
 });
 
+// OAuth2 setup routes (temporary - remove after getting refresh token)
+const { google } = require('googleapis');
+const OAUTH_CLIENT_ID = '1040161889673-t3pm2dod9esa0286h7gd6qk5aj1ovj9q.apps.googleusercontent.com';
+const OAUTH_CLIENT_SECRET = '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';
+
+app.get('/setup-drive', (req, res) => {
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const oauth2Client = new google.auth.OAuth2(
+        OAUTH_CLIENT_ID,
+        OAUTH_CLIENT_SECRET,
+        `${baseUrl}/oauth2callback`
+    );
+    const authUrl = oauth2Client.generateAuthUrl({
+        access_type: 'offline',
+        scope: ['https://www.googleapis.com/auth/drive.file'],
+        prompt: 'consent'
+    });
+    res.redirect(authUrl);
+});
+
+app.get('/oauth2callback', async (req, res) => {
+    const code = req.query.code;
+    if (!code) {
+        return res.status(400).send('No code provided');
+    }
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const oauth2Client = new google.auth.OAuth2(
+        OAUTH_CLIENT_ID,
+        OAUTH_CLIENT_SECRET,
+        `${baseUrl}/oauth2callback`
+    );
+    try {
+        const { tokens } = await oauth2Client.getToken(code);
+        res.send(`
+            <html dir="rtl">
+            <head><title>Refresh Token</title></head>
+            <body style="font-family: Arial; padding: 50px; direction: rtl;">
+                <h1 style="color: green;">הצלחה!</h1>
+                <p>העתק את ה-Refresh Token הזה והוסף אותו ב-Render:</p>
+                <div style="background: #f0f0f0; padding: 20px; border-radius: 10px; word-break: break-all;">
+                    <strong>GOOGLE_REFRESH_TOKEN=</strong><br>
+                    <code style="color: blue;">${tokens.refresh_token}</code>
+                </div>
+                <br>
+                <p>Environment Variables להוספה ב-Render:</p>
+                <pre style="background: #333; color: #0f0; padding: 20px; border-radius: 10px;">
+GOOGLE_CLIENT_ID=${OAUTH_CLIENT_ID}
+GOOGLE_CLIENT_SECRET=${OAUTH_CLIENT_SECRET}
+GOOGLE_REFRESH_TOKEN=${tokens.refresh_token}
+                </pre>
+            </body>
+            </html>
+        `);
+    } catch (error) {
+        res.status(500).send('Error: ' + error.message);
+    }
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);
