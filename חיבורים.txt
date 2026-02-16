@@ -1,0 +1,26 @@
+SUBDOMAIN
+https://agreement-signing-system.onrender.com/dashboard
+
+כניסה למנהל:
+שם משתמש	
+admin
+
+סיסמה
+Admin@RT2026!
+
+שרת RENDER
+קישור:
+https://dashboard.render.com/web/srv-d69dpl15pdvs738fn2mg
+
+מייל עובדים על בסיס GMAIL שלי
+חשבון GMAIL
+orenshp77
+
+סיסמת חיבור מייל 
+ב
+https://dashboard.render.com/web/srv-d69dpl15pdvs738fn2mg/env
+JWT_SECRET
+btZgAD0Xui8kepFTcEXN
+
+
+

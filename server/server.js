@@ -169,6 +169,13 @@ GOOGLE_REFRESH_TOKEN=${tokens.refresh_token}
     }
 });
 
+// Test Drive connection
+const { testConnection } = require('./services/driveService');
+app.get('/api/test-drive', async (req, res) => {
+    const result = await testConnection();
+    res.json(result);
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);

@@ -134,9 +134,41 @@ async function listBackupFiles() {
     }
 }
 
+/**
+ * Test Drive connection
+ */
+async function testConnection() {
+    const drive = initDriveClient();
+
+    if (!drive) {
+        return { success: false, error: 'Drive client not initialized' };
+    }
+
+    try {
+        // Try to get folder info
+        const response = await drive.files.get({
+            fileId: DRIVE_FOLDER_ID,
+            fields: 'id, name',
+            supportsAllDrives: true
+        });
+
+        return {
+            success: true,
+            folderId: response.data.id,
+            folderName: response.data.name
+        };
+    } catch (error) {
+        return {
+            success: false,
+            error: error.message
+        };
+    }
+}
+
 module.exports = {
     uploadPdfToDrive,
     uploadPdfFromBase64,
     listBackupFiles,
-    initDriveClient
+    initDriveClient,
+    testConnection
 };
