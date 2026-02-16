@@ -421,8 +421,13 @@
 
                 renderAgreement(agreement);
 
-                // Update sign button link
-                document.getElementById('signBtn').href = `/sign/${agreementId}`;
+                // Update sign button - hide if already signed
+                const signBtn = document.getElementById('signBtn');
+                if (agreement.status === 'signed' || agreement.status === 'completed') {
+                    signBtn.style.display = 'none';
+                } else {
+                    signBtn.href = `/sign/${agreementId}`;
+                }
 
                 // Hide loader after images load
                 setTimeout(() => {
