@@ -2,6 +2,7 @@ const express = require('express');
 const { v4: uuidv4 } = require('uuid');
 const { Agreements, Templates } = require('../database');
 const { verifyToken, isAdmin, createLog } = require('../middleware/auth');
+const { sendAgreementEmail, sendSignedNotification } = require('../services/emailService');
 
 const router = express.Router();
 
@@ -216,7 +217,7 @@ router.put('/:id', verifyToken, (req, res) => {
 });
 
 // Send agreement to client
-router.post('/:id/send', verifyToken, (req, res) => {
+router.post('/:id/send', verifyToken, async (req, res) => {
     try {
         const { via, recipient } = req.body; // via: 'whatsapp' | 'sms' | 'email'
         const agreementId = req.params.id;
@@ -240,6 +241,19 @@ router.post('/:id/send', verifyToken, (req, res) => {
         // Generate signing link
         const baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
         const signingLink = `${baseUrl}/sign/${agreementId}`;
+
+        // If sending via email, actually send the email
+        if (via === 'email' && recipient) {
+            try {
+                await sendAgreementEmail(recipient, signingLink, agreement);
+            } catch (emailError) {
+                console.error('Email send failed:', emailError);
+                return res.status(500).json({
+                    success: false,
+                    message: 'שגיאה בשליחת המייל: ' + emailError.message
+                });
+            }
+        }
 
         // Update agreement status
         Agreements.update(agreementId, {
@@ -276,7 +290,7 @@ router.post('/:id/send', verifyToken, (req, res) => {
 });
 
 // Sign agreement (client endpoint - no auth required)
-router.post('/:id/sign', (req, res) => {
+router.post('/:id/sign', async (req, res) => {
     try {
         const { signature } = req.body; // Base64 signature image
         const agreementId = req.params.id;
@@ -315,6 +329,11 @@ router.post('/:id/sign', (req, res) => {
             agreementId,
             clientName: agreement.companyName
         }, req);
+
+        // Send notification email to admin
+        sendSignedNotification(agreement).catch(err => {
+            console.error('Failed to send signed notification:', err);
+        });
 
         res.json({
             success: true,
