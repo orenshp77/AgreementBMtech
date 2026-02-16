@@ -1,46 +1,33 @@
 const { google } = require('googleapis');
-const path = require('path');
-const fs = require('fs');
 
-// Google Drive folder ID for backups (Shared Drive)
-const DRIVE_FOLDER_ID = '1MhNkFlE_4rLoMFGltl4cTGJCNpWY96d7';
+// Google Drive folder ID for backups (in user's personal Drive)
+const DRIVE_FOLDER_ID = process.env.DRIVE_FOLDER_ID || '1iksarwV8HB08SfwnD6nryCooogKaTSvZ';
 
 let driveClient = null;
+let oauth2Client = null;
 
 /**
- * Initialize Google Drive client with Service Account
- * Supports both file-based and environment variable credentials
+ * Initialize Google Drive client with OAuth2 (user's personal account)
  */
 function initDriveClient() {
     if (driveClient) return driveClient;
 
     try {
-        let auth;
+        // Check for OAuth2 credentials
+        const clientId = process.env.GOOGLE_CLIENT_ID;
+        const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+        const refreshToken = process.env.GOOGLE_REFRESH_TOKEN;
 
-        // Try environment variable first (for Render)
-        if (process.env.GOOGLE_CREDENTIALS) {
-            const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS);
-            auth = new google.auth.GoogleAuth({
-                credentials: credentials,
-                scopes: ['https://www.googleapis.com/auth/drive.file']
-            });
-            console.log('Using Google credentials from environment variable');
-        } else {
-            // Fall back to file (for local development)
-            const credentialsPath = path.join(__dirname, '../../drive-credentials.json');
-            if (!fs.existsSync(credentialsPath)) {
-                console.warn('No Google Drive credentials found. Backup disabled.');
-                return null;
-            }
-            auth = new google.auth.GoogleAuth({
-                keyFile: credentialsPath,
-                scopes: ['https://www.googleapis.com/auth/drive.file']
-            });
-            console.log('Using Google credentials from file');
+        if (!clientId || !clientSecret || !refreshToken) {
+            console.warn('Google OAuth2 credentials not configured. Backup disabled.');
+            return null;
         }
 
-        driveClient = google.drive({ version: 'v3', auth });
-        console.log('Google Drive client initialized with Service Account');
+        oauth2Client = new google.auth.OAuth2(clientId, clientSecret);
+        oauth2Client.setCredentials({ refresh_token: refreshToken });
+
+        driveClient = google.drive({ version: 'v3', auth: oauth2Client });
+        console.log('Google Drive client initialized with OAuth2');
         return driveClient;
     } catch (error) {
         console.error('Failed to initialize Google Drive client:', error.message);
