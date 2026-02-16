@@ -23,15 +23,22 @@ async function initializeDatabase() {
 // Initialize on startup
 initializeDatabase();
 
-// Helper to convert snake_case to camelCase
+// Helper to convert snake_case to camelCase and handle dates
 function toCamelCase(obj) {
     if (obj === null || typeof obj !== 'object') return obj;
+    if (obj instanceof Date) return obj.toISOString();
     if (Array.isArray(obj)) return obj.map(toCamelCase);
 
     const newObj = {};
     for (const key in obj) {
         const camelKey = key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
-        newObj[camelKey] = toCamelCase(obj[key]);
+        const value = obj[key];
+        // Convert Date objects to ISO strings
+        if (value instanceof Date) {
+            newObj[camelKey] = value.toISOString();
+        } else {
+            newObj[camelKey] = toCamelCase(value);
+        }
     }
     return newObj;
 }
