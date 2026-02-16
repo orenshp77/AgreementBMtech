@@ -1,0 +1,87 @@
+const jwt = require('jsonwebtoken');
+const { Users, Logs } = require('../database');
+const { v4: uuidv4 } = require('uuid');
+
+const JWT_SECRET = process.env.JWT_SECRET || 'default-secret-change-in-production';
+
+// Create log entry
+function createLog(type, userId, action, details = {}, req = null) {
+    const log = {
+        id: uuidv4(),
+        timestamp: new Date().toISOString(),
+        type,
+        userId,
+        action,
+        details,
+        platform: req?.headers['user-agent'] || 'unknown',
+        ip: req?.ip || req?.connection?.remoteAddress || 'unknown'
+    };
+    Logs.create(log);
+    return log;
+}
+
+// Verify JWT token
+function verifyToken(req, res, next) {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        createLog('AUTH', null, 'Unauthorized access attempt', { path: req.path }, req);
+        return res.status(401).json({
+            success: false,
+            message: 'נדרשת התחברות למערכת'
+        });
+    }
+
+    const token = authHeader.split(' ')[1];
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const user = Users.getById(decoded.id);
+
+        if (!user) {
+            createLog('AUTH', decoded.id, 'Token for non-existent user', {}, req);
+            return res.status(401).json({
+                success: false,
+                message: 'משתמש לא נמצא'
+            });
+        }
+
+        req.user = user;
+        next();
+    } catch (error) {
+        createLog('AUTH', null, 'Invalid token', { error: error.message }, req);
+        return res.status(401).json({
+            success: false,
+            message: 'טוקן לא תקין'
+        });
+    }
+}
+
+// Check if user is admin
+function isAdmin(req, res, next) {
+    if (req.user.role !== 'admin') {
+        createLog('AUTH', req.user.id, 'Admin access denied', { path: req.path }, req);
+        return res.status(403).json({
+            success: false,
+            message: 'הגישה מותרת למנהלים בלבד'
+        });
+    }
+    next();
+}
+
+// Generate JWT token
+function generateToken(user) {
+    return jwt.sign(
+        { id: user.id, username: user.username, role: user.role },
+        JWT_SECRET,
+        { expiresIn: '24h' }
+    );
+}
+
+module.exports = {
+    verifyToken,
+    isAdmin,
+    generateToken,
+    createLog,
+    JWT_SECRET
+};

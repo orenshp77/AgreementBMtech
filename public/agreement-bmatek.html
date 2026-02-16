@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>הסכם במטק בע"מ - מערכת הסכמים</title>
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <div class="loader-overlay">
+        <div class="flex flex-col items-center">
+            <div class="loader"></div>
+            <p class="loader-text">טוען...</p>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-content">
+                <div class="navbar-brand">
+                    <img src="/assets/images/33.jpg" alt="Logo" class="navbar-logo" onerror="this.style.display='none'">
+                    <span class="navbar-title">הסכם במטק בע"מ</span>
+                </div>
+                <div class="navbar-menu">
+                    <a href="/dashboard" class="navbar-link">חזרה ללוח בקרה</a>
+                    <span class="text-secondary">|</span>
+                    <span id="userName" class="text-secondary"></span>
+                    <a href="#" id="logoutBtn" class="navbar-link">התנתק</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container container-md" style="padding-top: 2rem; padding-bottom: 2rem;">
+        <div class="card">
+            <div class="card-header">
+                <h1 style="margin: 0; color: var(--accent-blue);">יצירת הסכם חדש</h1>
+                <p class="text-secondary mt-sm">Reshet Times מקבוצת במטק בע"מ</p>
+            </div>
+
+            <form id="agreementForm">
+                <!-- Client Details -->
+                <h3 class="mb-md">פרטי הלקוח</h3>
+                <div class="grid grid-2">
+                    <div class="form-group">
+                        <label class="form-label" for="companyName">שם החברה / העסק (XXX1)</label>
+                        <input type="text" id="companyName" name="companyName" class="form-input"
+                               placeholder="שם החברה או העסק" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="companyId">ח.פ / עוסק מורשה (XXX2)</label>
+                        <input type="text" id="companyId" name="companyId" class="form-input"
+                               placeholder="מספר חברה או עוסק" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="contactName">שם איש קשר (XXX3)</label>
+                        <input type="text" id="contactName" name="contactName" class="form-input"
+                               placeholder="שם פרטי ומשפחה" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="contactId">ת.ז. (XXX4)</label>
+                        <input type="text" id="contactId" name="contactId" class="form-input"
+                               placeholder="מספר תעודת זהות" required>
+                    </div>
+                </div>
+
+                <!-- Agreement Details -->
+                <h3 class="mb-md mt-xl">פרטי ההסכם</h3>
+                <div class="grid grid-2">
+                    <div class="form-group">
+                        <label class="form-label" for="monthlyAmount">סכום חודשי בש"ח (XXX5)</label>
+                        <input type="number" id="monthlyAmount" name="monthlyAmount" class="form-input"
+                               placeholder="סכום ללא מע״מ" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="paymentDay">יום תשלום בחודש (XXX6)</label>
+                        <select id="paymentDay" name="paymentDay" class="form-select" required>
+                            <option value="">בחר יום</option>
+                            <option value="1">1</option>
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="15">15</option>
+                            <option value="20">20</option>
+                            <option value="25">25</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="effectiveDate">תאריך כניסה לתוקף (XXX7)</label>
+                        <input type="date" id="effectiveDate" name="effectiveDate" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="duration">משך תקופה בחודשים (XXX8)</label>
+                        <select id="duration" name="duration" class="form-select" required>
+                            <option value="">בחר תקופה</option>
+                            <option value="3">3 חודשים</option>
+                            <option value="6">6 חודשים</option>
+                            <option value="12">12 חודשים</option>
+                            <option value="24">24 חודשים</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="agreementDate">תאריך ההסכם (XXX9)</label>
+                        <input type="date" id="agreementDate" name="agreementDate" class="form-input">
+                        <span class="form-hint">אם ריק - יהיה תאריך השליחה</span>
+                    </div>
+                </div>
+
+                <!-- Notes (Optional) -->
+                <div class="form-group mt-xl">
+                    <label class="form-label" for="notes">הערות <span class="text-secondary" style="font-size: 0.85em; font-weight: normal;">(לא חובה)</span></label>
+                    <textarea id="notes" name="notes" class="form-textarea" rows="3"
+                              placeholder="הערות נוספות להסכם..."></textarea>
+                </div>
+
+                <!-- Services Selection (Optional Accordions) -->
+                <h3 class="mb-md mt-xl">שירותים נבחרים <span class="text-secondary" style="font-size: 0.8em; font-weight: normal;">(לא חובה)</span></h3>
+
+                <details class="accordion">
+                    <summary class="accordion-header">
+                        <span>שירותים מסעיף 2.1 (AIweon - משפיענים)</span>
+                        <svg class="accordion-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </summary>
+                    <div class="accordion-content">
+                        <textarea id="services21" name="services21" class="form-textarea"
+                                  placeholder="פירוט השירותים שנבחרו מסעיף 2.1"></textarea>
+                    </div>
+                </details>
+
+                <details class="accordion">
+                    <summary class="accordion-header">
+                        <span>שירותים מסעיף 2.2 (רשת טיימס)</span>
+                        <svg class="accordion-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </summary>
+                    <div class="accordion-content">
+                        <textarea id="services22" name="services22" class="form-textarea"
+                                  placeholder="פירוט השירותים שנבחרו מסעיף 2.2"></textarea>
+                    </div>
+                </details>
+
+                <details class="accordion">
+                    <summary class="accordion-header">
+                        <span>שירותים מסעיף 2.3 (שירותים נוספים)</span>
+                        <svg class="accordion-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </summary>
+                    <div class="accordion-content">
+                        <textarea id="services23" name="services23" class="form-textarea"
+                                  placeholder="פירוט השירותים שנבחרו מסעיף 2.3"></textarea>
+                    </div>
+                </details>
+
+                <!-- Submit -->
+                <div class="flex gap-md mt-xl">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        צור הסכם ושלח
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-lg" onclick="saveAsDraft()">
+                        שמור כטיוטה
+                    </button>
+                    <a href="/dashboard" class="btn btn-secondary btn-lg">ביטול</a>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script src="/assets/js/main.js"></script>
+    <script>
+        // Check auth
+        if (!AppUtils.requireAuth()) {
+            // Will redirect
+        }
+
+        // Set default dates
+        document.addEventListener('DOMContentLoaded', () => {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('effectiveDate').value = today;
+            document.getElementById('agreementDate').value = today;
+        });
+
+        // Handle form submit
+        document.getElementById('agreementForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await createAndSendAgreement();
+        });
+
+        async function createAndSendAgreement() {
+            const formData = getFormData();
+
+            if (!validateForm(formData)) return;
+
+            try {
+                AppUtils.showLoader('יוצר הסכם...');
+                const result = await API.agreements.create(formData);
+                AppUtils.hideLoader();
+
+                // Show send dialog
+                await AppUtils.showSendDialog(result.data.id);
+
+                // Redirect to dashboard
+                window.location.href = '/dashboard';
+
+            } catch (error) {
+                AppUtils.hideLoader();
+                AppUtils.showError(error.message);
+            }
+        }
+
+        async function saveAsDraft() {
+            const formData = getFormData();
+
+            // Minimal validation for draft
+            if (!formData.companyName) {
+                AppUtils.showToast('נא להזין לפחות שם חברה', 'warning');
+                return;
+            }
+
+            try {
+                AppUtils.showLoader('שומר טיוטה...');
+                await API.agreements.create(formData);
+                AppUtils.hideLoader();
+                AppUtils.showToast('הטיוטה נשמרה בהצלחה', 'success');
+                setTimeout(() => window.location.href = '/dashboard', 1000);
+            } catch (error) {
+                AppUtils.hideLoader();
+                AppUtils.showError(error.message);
+            }
+        }
+
+        function getFormData() {
+            return {
+                type: 'bmatek',
+                companyName: document.getElementById('companyName').value.trim(),
+                companyId: document.getElementById('companyId').value.trim(),
+                contactName: document.getElementById('contactName').value.trim(),
+                contactId: document.getElementById('contactId').value.trim(),
+                monthlyAmount: document.getElementById('monthlyAmount').value,
+                paymentDay: document.getElementById('paymentDay').value,
+                effectiveDate: document.getElementById('effectiveDate').value,
+                duration: document.getElementById('duration').value,
+                agreementDate: document.getElementById('agreementDate').value || new Date().toISOString().split('T')[0],
+                notes: document.getElementById('notes').value.trim(),
+                selectedServices: {
+                    section21: document.getElementById('services21').value.trim(),
+                    section22: document.getElementById('services22').value.trim(),
+                    section23: document.getElementById('services23').value.trim()
+                }
+            };
+        }
+
+        function validateForm(data) {
+            if (!data.companyName || !data.companyId || !data.contactName || !data.contactId) {
+                AppUtils.showToast('נא למלא את כל פרטי הלקוח', 'warning');
+                return false;
+            }
+            if (!data.monthlyAmount || !data.paymentDay || !data.effectiveDate || !data.duration) {
+                AppUtils.showToast('נא למלא את כל פרטי ההסכם', 'warning');
+                return false;
+            }
+            return true;
+        }
+    </script>
+</body>
+</html>

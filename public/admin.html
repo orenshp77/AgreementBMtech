@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ניהול משתמשים - מערכת הסכמים</title>
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <div class="loader-overlay">
+        <div class="flex flex-col items-center">
+            <div class="loader"></div>
+            <p class="loader-text">טוען...</p>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-content">
+                <div class="navbar-brand">
+                    <img src="/assets/images/33.jpg" alt="Logo" class="navbar-logo" onerror="this.style.display='none'">
+                    <span class="navbar-title">מערכת הסכמים</span>
+                </div>
+                <div class="navbar-menu">
+                    <a href="/dashboard" class="navbar-link">ראשי</a>
+                    <a href="/admin" class="navbar-link active">ניהול משתמשים</a>
+                    <a href="/logs" class="navbar-link">לוגים</a>
+                    <span class="text-secondary">|</span>
+                    <span id="userName" class="text-secondary"></span>
+                    <a href="#" id="logoutBtn" class="navbar-link">התנתק</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container" style="padding-top: 2rem; padding-bottom: 2rem;">
+        <div class="flex justify-between items-center mb-lg">
+            <h1 style="margin: 0;">ניהול משתמשים</h1>
+            <button class="btn btn-primary" onclick="showCreateUserModal()">
+                + משתמש חדש
+            </button>
+        </div>
+
+        <div class="card">
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>שם מלא</th>
+                            <th>שם משתמש</th>
+                            <th>טלפון</th>
+                            <th>תפקיד</th>
+                            <th>תאריך יצירה</th>
+                            <th>פעולות</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersBody">
+                        <tr>
+                            <td colspan="6" class="text-center text-muted p-lg">טוען משתמשים...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script src="/assets/js/main.js"></script>
+    <script>
+        // Check auth & admin
+        if (!AppUtils.requireAuth()) {
+            // Will redirect
+        } else if (!AppUtils.isAdmin()) {
+            AppUtils.showError('הגישה מותרת למנהלים בלבד');
+            setTimeout(() => window.location.href = '/dashboard', 2000);
+        }
+
+        // Load users on page load
+        document.addEventListener('DOMContentLoaded', loadUsers);
+
+        async function loadUsers() {
+            try {
+                AppUtils.showLoader('טוען משתמשים...');
+                const result = await API.users.getAll();
+                const users = result.data;
+
+                const tbody = document.getElementById('usersBody');
+
+                if (users.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="text-center text-muted p-lg">אין משתמשים</td>
+                        </tr>
+                    `;
+                } else {
+                    tbody.innerHTML = users.map(user => `
+                        <tr>
+                            <td><strong>${user.fullName}</strong></td>
+                            <td>${user.username}</td>
+                            <td>${user.phone}</td>
+                            <td>
+                                <span class="badge ${user.role === 'admin' ? 'badge-signed' : 'badge-sent'}">
+                                    ${user.role === 'admin' ? 'מנהל' : 'משתמש'}
+                                </span>
+                            </td>
+                            <td>${AppUtils.formatDate(user.createdAt)}</td>
+                            <td>
+                                <div class="flex gap-sm">
+                                    <button class="btn btn-secondary btn-sm" onclick="showEditUserModal('${user.id}')">
+                                        ערוך
+                                    </button>
+                                    ${user.role !== 'admin' ? `
+                                        <button class="btn btn-danger btn-sm" onclick="deleteUser('${user.id}', '${user.fullName}')">
+                                            מחק
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+
+                AppUtils.hideLoader();
+
+            } catch (error) {
+                AppUtils.hideLoader();
+                AppUtils.showError(error.message);
+            }
+        }
+
+        async function showCreateUserModal() {
+            const { value: formValues } = await Swal.fire({
+                title: 'יצירת משתמש חדש',
+                html: `
+                    <div style="text-align: right;">
+                        <div class="form-group">
+                            <label class="form-label">שם מלא</label>
+                            <input type="text" id="swal-fullName" class="form-input" placeholder="שם מלא">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">טלפון</label>
+                            <input type="tel" id="swal-phone" class="form-input" placeholder="05XXXXXXXX">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">שם משתמש</label>
+                            <input type="text" id="swal-username" class="form-input" placeholder="שם משתמש להתחברות">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">סיסמא</label>
+                            <input type="password" id="swal-password" class="form-input" placeholder="סיסמא">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">תפקיד</label>
+                            <select id="swal-role" class="form-select">
+                                <option value="user">משתמש</option>
+                                <option value="admin">מנהל</option>
+                            </select>
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'צור משתמש',
+                cancelButtonText: 'ביטול',
+                preConfirm: () => {
+                    const fullName = document.getElementById('swal-fullName').value.trim();
+                    const phone = document.getElementById('swal-phone').value.trim();
+                    const username = document.getElementById('swal-username').value.trim();
+                    const password = document.getElementById('swal-password').value;
+                    const role = document.getElementById('swal-role').value;
+
+                    if (!fullName || !phone || !username || !password) {
+                        Swal.showValidationMessage('נא למלא את כל השדות');
+                        return false;
+                    }
+
+                    return { fullName, phone, username, password, role };
+                }
+            });
+
+            if (!formValues) return;
+
+            try {
+                AppUtils.showLoader('יוצר משתמש...');
+                await API.users.create(formValues);
+                AppUtils.hideLoader();
+                AppUtils.showToast('משתמש נוצר בהצלחה', 'success');
+
+                // Show credentials
+                await Swal.fire({
+                    title: 'פרטי המשתמש החדש',
+                    html: `
+                        <div style="text-align: right; background: var(--bg-secondary); padding: 1rem; border-radius: 8px;">
+                            <p><strong>שם משתמש:</strong> ${formValues.username}</p>
+                            <p><strong>סיסמא:</strong> ${formValues.password}</p>
+                        </div>
+                        <p class="text-sm text-muted mt-md">העבר פרטים אלו למשתמש החדש</p>
+                    `,
+                    icon: 'success'
+                });
+
+                loadUsers();
+
+            } catch (error) {
+                AppUtils.hideLoader();
+                AppUtils.showError(error.message);
+            }
+        }
+
+        async function showEditUserModal(userId) {
+            try {
+                AppUtils.showLoader('טוען פרטי משתמש...');
+                const result = await API.users.getById(userId);
+                const user = result.data;
+                AppUtils.hideLoader();
+
+                const { value: formValues } = await Swal.fire({
+                    title: 'עריכת משתמש',
+                    html: `
+                        <div style="text-align: right;">
+                            <div class="form-group">
+                                <label class="form-label">שם מלא</label>
+                                <input type="text" id="swal-fullName" class="form-input" value="${user.fullName}">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">טלפון</label>
+                                <input type="tel" id="swal-phone" class="form-input" value="${user.phone}">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">שם משתמש</label>
+                                <input type="text" id="swal-username" class="form-input" value="${user.username}">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">סיסמא חדשה (השאר ריק לשמור)</label>
+                                <input type="password" id="swal-password" class="form-input" placeholder="סיסמא חדשה">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">תפקיד</label>
+                                <select id="swal-role" class="form-select">
+                                    <option value="user" ${user.role === 'user' ? 'selected' : ''}>משתמש</option>
+                                    <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>מנהל</option>
+                                </select>
+                            </div>
+                        </div>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: 'שמור שינויים',
+                    cancelButtonText: 'ביטול',
+                    preConfirm: () => {
+                        const fullName = document.getElementById('swal-fullName').value.trim();
+                        const phone = document.getElementById('swal-phone').value.trim();
+                        const username = document.getElementById('swal-username').value.trim();
+                        const password = document.getElementById('swal-password').value;
+                        const role = document.getElementById('swal-role').value;
+
+                        if (!fullName || !phone || !username) {
+                            Swal.showValidationMessage('נא למלא את כל השדות');
+                            return false;
+                        }
+
+                        const data = { fullName, phone, username, role };
+                        if (password) data.password = password;
+                        return data;
+                    }
+                });
+
+                if (!formValues) return;
+
+                AppUtils.showLoader('שומר שינויים...');
+                await API.users.update(userId, formValues);
+                AppUtils.hideLoader();
+                AppUtils.showToast('המשתמש עודכן בהצלחה', 'success');
+                loadUsers();
+
+            } catch (error) {
+                AppUtils.hideLoader();
+                AppUtils.showError(error.message);
+            }
+        }
+
+        async function deleteUser(userId, userName) {
+            const confirmed = await AppUtils.showConfirm(
+                'מחיקת משתמש',
+                `האם אתה בטוח שברצונך למחוק את המשתמש "${userName}"?`,
+                'מחק',
+                'ביטול'
+            );
+
+            if (!confirmed) return;
+
+            try {
+                AppUtils.showLoader('מוחק משתמש...');
+                await API.users.delete(userId);
+                AppUtils.hideLoader();
+                AppUtils.showToast('המשתמש נמחק בהצלחה', 'success');
+                loadUsers();
+            } catch (error) {
+                AppUtils.hideLoader();
+                AppUtils.showError(error.message);
+            }
+        }
+    </script>
+</body>
+</html>

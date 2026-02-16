@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>צפייה בהסכם - Reshet Times</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background: #1a1a2e;
+        }
+        .agreement-viewer {
+            max-width: 100%;
+            margin: 0 auto;
+            padding-bottom: 80px;
+        }
+        .page-container {
+            position: relative;
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto 10px auto;
+            background: #fff;
+        }
+        .page-image {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .field-overlay {
+            position: absolute;
+            font-family: 'Assistant', Arial, sans-serif;
+            font-weight: 600;
+            color: #000;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 10;
+            transform-origin: top right;
+        }
+        .signature-overlay {
+            position: absolute;
+            pointer-events: none;
+            z-index: 10;
+            transform-origin: top right;
+        }
+        .signature-overlay img {
+            width: auto;
+            height: auto;
+        }
+        .notes-overlay {
+            position: absolute;
+            font-family: 'Assistant', Arial, sans-serif;
+            font-weight: 400;
+            color: #000;
+            pointer-events: none;
+            z-index: 10;
+            text-align: right;
+            direction: rtl;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            padding: 0;
+            margin: 0;
+            text-indent: 0;
+            transform-origin: top right;
+        }
+        .action-buttons {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            z-index: 100;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+        }
+        .action-buttons .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            border-radius: 25px;
+            font-weight: bold;
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #00b894, #00cec9);
+            color: #fff;
+            border: none;
+            text-decoration: none;
+        }
+        .btn-secondary {
+            background: linear-gradient(135deg, #636e72, #b2bec3);
+            color: #fff;
+            border: none;
+        }
+        .loader-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(26, 26, 46, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #333;
+            border-top-color: #e91e63;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .loader-text {
+            color: #fff;
+            margin-top: 15px;
+            font-size: 18px;
+        }
+        .page-number {
+            text-align: center;
+            color: #fff;
+            padding: 5px;
+            font-size: 14px;
+            background: rgba(0,0,0,0.3);
+        }
+        /* Hide loader when done */
+        .loader-overlay.hidden {
+            display: none;
+        }
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 0;
+            }
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+            html, body {
+                width: 210mm;
+                height: 297mm;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: #fff !important;
+            }
+            .action-buttons {
+                display: none !important;
+            }
+            .loader-overlay {
+                display: none !important;
+            }
+            .agreement-viewer {
+                padding: 0 !important;
+                margin: 0 !important;
+                width: 100% !important;
+                max-width: none !important;
+            }
+            .page-container {
+                page-break-after: always;
+                page-break-inside: avoid;
+                break-inside: avoid;
+                margin: 0 !important;
+                padding: 0 !important;
+                position: relative !important;
+                width: 210mm !important;
+                height: 297mm !important;
+                max-width: none !important;
+                background: #fff !important;
+                overflow: hidden !important;
+            }
+            .page-container:last-child {
+                page-break-after: auto;
+            }
+            .page-image {
+                width: 100% !important;
+                height: 100% !important;
+                max-width: none !important;
+                display: block !important;
+                object-fit: contain !important;
+            }
+            .field-overlay {
+                position: absolute !important;
+                display: block !important;
+                visibility: visible !important;
+                color: #000 !important;
+                font-family: 'Assistant', Arial, sans-serif !important;
+                font-weight: 600 !important;
+                font-size: 14px !important;
+            }
+            .signature-overlay {
+                position: absolute !important;
+                display: block !important;
+                visibility: visible !important;
+            }
+            .signature-overlay img {
+                display: block !important;
+                visibility: visible !important;
+                max-height: 85px !important;
+                max-width: 254px !important;
+            }
+            .notes-overlay {
+                position: absolute !important;
+                display: block !important;
+                visibility: visible !important;
+                color: #000 !important;
+                font-family: 'Assistant', Arial, sans-serif !important;
+                font-weight: 400 !important;
+                font-size: 14px !important;
+                line-height: 1.5em !important;
+            }
+            .page-number {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loader-overlay" id="loader">
+        <div style="text-align: center;">
+            <div class="loader"></div>
+            <p class="loader-text">טוען הסכם...</p>
+        </div>
+    </div>
+
+    <div class="agreement-viewer" id="agreementViewer">
+        <!-- Pages will be dynamically inserted here -->
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+        <a href="/dashboard" class="btn btn-secondary">
+            חזרה לטבלה
+        </a>
+        <a href="#" id="signBtn" class="btn btn-success">
+            המשך לחתימה
+        </a>
+        <button class="btn btn-secondary" onclick="window.print()">
+            הדפס PDF
+        </button>
+    </div>
+
+    <script src="/assets/js/main.js"></script>
+    <script>
+        // Field position mappings - coordinates are in percentages relative to page dimensions
+        // Calibrated using field-mapper tool
+        const fieldPositions = {
+            bmatek: {
+                2: [ // Page 2
+                    { field: 'companyId', x: 56.8, y: 21.2, fontSize: 14 },
+                    { field: 'companyName', x: 23.9, y: 21.5, fontSize: 14 },
+                    { field: 'contactName', x: 24.3, y: 24.2, fontSize: 14 },
+                    { field: 'contactId', x: 43.8, y: 24.2, fontSize: 14 }
+                ],
+                4: [ // Page 4
+                    { field: 'monthlyAmount', x: 63.9, y: 63.3, fontSize: 14 },
+                    { field: 'paymentDay', x: 51, y: 68.3, fontSize: 14 }
+                ],
+                5: [ // Page 5
+                    { field: 'effectiveDate', x: 50.3, y: 43.1, fontSize: 14 },
+                    { field: 'duration', x: 35.3, y: 45.2, fontSize: 14 }
+                ],
+                6: [ // Page 6
+                    { field: 'agreementDate', x: 20.1, y: 67, fontSize: 14 },
+                    { field: 'clientSignature', x: 64.5, y: 63.9, fontSize: 14, isSignature: true }
+                ],
+                13: [ // Page 13
+                    { field: 'notes', x: 14.9, y: 20.5, fontSize: 14, isNotes: true, maxWidth: 70, maxLines: 8 },
+                    { field: 'agreementDate', x: 24.1, y: 46.3, fontSize: 14 },
+                    { field: 'clientSignature', x: 67.4, y: 44, fontSize: 14, isSignature: true }
+                ]
+            },
+            bagda: {
+                2: [
+                    { field: 'companyId', x: 56.8, y: 21.2, fontSize: 14 },
+                    { field: 'companyName', x: 23.9, y: 21.5, fontSize: 14 },
+                    { field: 'contactName', x: 24.3, y: 24.2, fontSize: 14 },
+                    { field: 'contactId', x: 43.8, y: 24.2, fontSize: 14 }
+                ],
+                4: [
+                    { field: 'monthlyAmount', x: 63.9, y: 63.3, fontSize: 14 },
+                    { field: 'paymentDay', x: 51, y: 68.3, fontSize: 14 }
+                ],
+                5: [
+                    { field: 'effectiveDate', x: 50.3, y: 43.1, fontSize: 14 },
+                    { field: 'duration', x: 35.3, y: 45.2, fontSize: 14 }
+                ],
+                6: [
+                    { field: 'agreementDate', x: 20.1, y: 67, fontSize: 14 },
+                    { field: 'clientSignature', x: 64.5, y: 63.9, fontSize: 14, isSignature: true }
+                ],
+                13: [
+                    { field: 'notes', x: 14.9, y: 20.5, fontSize: 14, isNotes: true, maxWidth: 70, maxLines: 8 },
+                    { field: 'clientSignature', x: 72.1, y: 43.6, fontSize: 14, isSignature: true },
+                    { field: 'agreementDate', x: 24.3, y: 46.5, fontSize: 14 }
+                ]
+            }
+        };
+
+        const TOTAL_PAGES = 13;
+
+        // Reference dimensions - the original design width for A4 at 800px max-width
+        const REFERENCE_WIDTH = 800;
+        // Base font size at reference width
+        const BASE_FONT_SIZE = 14;
+        // Base signature dimensions at reference width
+        const BASE_SIGNATURE_HEIGHT = 85;
+        const BASE_SIGNATURE_WIDTH = 254;
+
+        // Function to calculate scale factor and update all overlays for a specific container
+        function updateContainerSizes(container) {
+            const containerWidth = container.offsetWidth;
+            if (containerWidth === 0) return; // Skip if not visible yet
+
+            const scaleFactor = containerWidth / REFERENCE_WIDTH;
+
+            // Update field overlays
+            const fieldOverlays = container.querySelectorAll('.field-overlay');
+            fieldOverlays.forEach(overlay => {
+                const baseFontSize = parseFloat(overlay.dataset.baseFontSize) || BASE_FONT_SIZE;
+                overlay.style.fontSize = (baseFontSize * scaleFactor) + 'px';
+            });
+
+            // Update notes overlays
+            const notesOverlays = container.querySelectorAll('.notes-overlay');
+            notesOverlays.forEach(overlay => {
+                const baseFontSize = parseFloat(overlay.dataset.baseFontSize) || BASE_FONT_SIZE;
+                overlay.style.fontSize = (baseFontSize * scaleFactor) + 'px';
+                overlay.style.lineHeight = '1.5em';
+            });
+
+            // Update signature overlays
+            const signatureOverlays = container.querySelectorAll('.signature-overlay img');
+            signatureOverlays.forEach(img => {
+                img.style.maxHeight = (BASE_SIGNATURE_HEIGHT * scaleFactor) + 'px';
+                img.style.maxWidth = (BASE_SIGNATURE_WIDTH * scaleFactor) + 'px';
+            });
+        }
+
+        // Function to update all containers
+        function updateResponsiveSizes() {
+            const pageContainers = document.querySelectorAll('.page-container');
+            pageContainers.forEach(updateContainerSizes);
+        }
+
+        // ResizeObserver for real-time updates without page refresh
+        let resizeObserver = null;
+        function initResizeObserver() {
+            if (resizeObserver) {
+                resizeObserver.disconnect();
+            }
+
+            resizeObserver = new ResizeObserver(entries => {
+                // Use requestAnimationFrame for smooth updates
+                requestAnimationFrame(() => {
+                    entries.forEach(entry => {
+                        updateContainerSizes(entry.target);
+                    });
+                });
+            });
+
+            // Observe all page containers
+            const pageContainers = document.querySelectorAll('.page-container');
+            pageContainers.forEach(container => {
+                resizeObserver.observe(container);
+            });
+        }
+
+        // Fallback for older browsers
+        window.addEventListener('resize', () => {
+            requestAnimationFrame(updateResponsiveSizes);
+        });
+
+        // Handle orientation change on mobile devices
+        window.addEventListener('orientationchange', () => {
+            setTimeout(updateResponsiveSizes, 100);
+        });
+
+        // Handle visibility change (when tab becomes active)
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                requestAnimationFrame(updateResponsiveSizes);
+            }
+        });
+
+        // Get agreement ID from URL
+        const pathParts = window.location.pathname.split('/');
+        const agreementId = pathParts[pathParts.length - 1];
+
+        if (!agreementId) {
+            alert('הסכם לא נמצא');
+            setTimeout(() => window.location.href = '/', 2000);
+        }
+
+        // Load agreement
+        document.addEventListener('DOMContentLoaded', loadAgreement);
+
+        async function loadAgreement() {
+            try {
+                const result = await API.agreements.getById(agreementId);
+                const agreement = result.data;
+
+                renderAgreement(agreement);
+
+                // Update sign button link
+                document.getElementById('signBtn').href = `/sign/${agreementId}`;
+
+                // Hide loader after images load
+                setTimeout(() => {
+                    document.getElementById('loader').classList.add('hidden');
+                }, 500);
+
+            } catch (error) {
+                alert('שגיאה בטעינת ההסכם: ' + error.message);
+                document.getElementById('loader').classList.add('hidden');
+            }
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('he-IL');
+        }
+
+        function formatNumber(num) {
+            if (!num) return '';
+            return Number(num).toLocaleString('he-IL');
+        }
+
+        function renderAgreement(agreement) {
+            const viewer = document.getElementById('agreementViewer');
+            const templateType = agreement.type === 'bmatek' ? 'bmatek' : 'bagda';
+            const positions = fieldPositions[templateType];
+
+            // Cache busting - add timestamp to force fresh images
+            const cacheBuster = Date.now();
+
+            // Get field values
+            const fieldValues = {
+                companyName: agreement.companyName || '',
+                companyId: agreement.companyId || '',
+                contactName: agreement.contactName || '',
+                contactId: agreement.contactId || '',
+                monthlyAmount: formatNumber(agreement.monthlyAmount),
+                paymentDay: agreement.paymentDay || '',
+                effectiveDate: formatDate(agreement.effectiveDate),
+                duration: agreement.duration || '',
+                agreementDate: formatDate(agreement.agreementDate),
+                clientSignature: agreement.clientSignature || null,
+                notes: agreement.notes || ''
+            };
+
+            let html = '';
+
+            // Generate all pages
+            for (let page = 1; page <= TOTAL_PAGES; page++) {
+                html += `
+                    <div class="page-container" id="page-${page}">
+                        <img src="/assets/images/templates/${templateType}/page-${page}.jpg?v=${cacheBuster}"
+                             class="page-image"
+                             alt="עמוד ${page}"
+                             onload="onPageLoad(${page})">
+                        ${renderFieldOverlays(page, positions, fieldValues)}
+                    </div>
+                `;
+            }
+
+            viewer.innerHTML = html;
+
+            // Initialize ResizeObserver after rendering
+            initResizeObserver();
+
+            // Initial size update
+            requestAnimationFrame(updateResponsiveSizes);
+        }
+
+        function renderFieldOverlays(pageNum, positions, fieldValues) {
+            const pagePositions = positions[pageNum];
+            if (!pagePositions) return '';
+
+            let overlays = '';
+
+            pagePositions.forEach(pos => {
+                const value = fieldValues[pos.field];
+                const baseFontSize = pos.fontSize || BASE_FONT_SIZE;
+
+                if (pos.isSignature && value) {
+                    // Signature image overlay
+                    overlays += `
+                        <div class="signature-overlay" style="right: ${pos.x}%; top: ${pos.y}%;">
+                            <img src="${value}" alt="חתימה">
+                        </div>
+                    `;
+                } else if (pos.isNotes && value) {
+                    // Notes field with text wrapping within bounded area
+                    overlays += `<div class="notes-overlay" data-base-font-size="${baseFontSize}" style="right: ${pos.x}%; top: ${pos.y}%; width: ${pos.maxWidth || 70}%; max-height: ${(pos.maxLines || 8) * 1.5}em; overflow: hidden;">${value}</div>`;
+                } else if (value) {
+                    // Text overlay
+                    const displayValue = pos.suffix ? value + pos.suffix : value;
+                    overlays += `
+                        <div class="field-overlay" data-base-font-size="${baseFontSize}" style="right: ${pos.x}%; top: ${pos.y}%;">
+                            ${displayValue}
+                        </div>
+                    `;
+                }
+            });
+
+            return overlays;
+        }
+
+        let loadedPages = 0;
+        function onPageLoad(pageNum) {
+            loadedPages++;
+            // ResizeObserver will automatically handle size updates
+            if (loadedPages >= TOTAL_PAGES) {
+                document.getElementById('loader').classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,917 @@
+{
+  "users": [
+    {
+      "id": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "fullName": "מנהל מערכת",
+      "phone": "0501234567",
+      "username": "admin",
+      "password": "$2a$10$tnTLsDEvOxJZ/oIlWV9oZug4rk45ueFWYsLtmdHR1tUAq8EjYdhL6",
+      "role": "admin",
+      "createdAt": "2026-02-15T10:35:41.162Z",
+      "updatedAt": "2026-02-15T10:35:41.162Z"
+    },
+    {
+      "id": "2a01a6d7-91ad-4181-bdfb-7952014fb2f1",
+      "fullName": "נסטיה",
+      "phone": "0523244140",
+      "username": "ns",
+      "password": "$2a$10$ecpV/c/v.6sKRYqUgj4oV.fTiq8E9q1SGj0h1LfDiTwwmM7pj7dRK",
+      "role": "user",
+      "createdAt": "2026-02-15T13:30:36.608Z",
+      "updatedAt": "2026-02-15T13:30:36.608Z"
+    }
+  ],
+  "agreements": [
+    {
+      "id": "21e587dc-0505-4568-a934-3b6cb7cb1978",
+      "type": "bmatek",
+      "status": "signed",
+      "createdBy": "2a01a6d7-91ad-4181-bdfb-7952014fb2f1",
+      "createdByName": "נסטיה",
+      "companyName": "or",
+      "companyId": "000000000",
+      "contactName": "אורן שעעעע",
+      "contactId": "000000000",
+      "monthlyAmount": 33333,
+      "paymentDay": 1,
+      "effectiveDate": "2026-02-15",
+      "duration": 3,
+      "agreementDate": "2026-02-15",
+      "selectedServices": {
+        "section21": "",
+        "section22": "",
+        "section23": ""
+      },
+      "notes": "ככככככככככככככככככככככככככ עעעעעעעעעעעעעעעעעעעעעעעעעעעעעעעע עעעעעעעעעעעעעעעעעעעעעעעעעעעעעעעעעעעעעעעעעעעעעעע",
+      "companyTemplate": {
+        "companyName": "Reshet Times",
+        "parentCompany": "במטק בע\"מ",
+        "companyId": "514074442",
+        "address": "דרך חיפה 19, קריית אתא",
+        "phone": "04-8427272",
+        "fax": "04-8409410"
+      },
+      "clientSignature": "data:image/png;base64,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",
+      "companyStamp": "514074442",
+      "sentAt": "2026-02-15T14:19:12.155Z",
+      "sentVia": "link",
+      "signedAt": "2026-02-15T14:19:45.549Z",
+      "pdfUrl": null,
+      "createdAt": "2026-02-15T14:18:24.894Z",
+      "updatedAt": "2026-02-15T14:19:45.549Z",
+      "sentTo": ""
+    }
+  ],
+  "logs": [
+    {
+      "id": "31b5b7b1-af55-4aad-90ea-07445e551623",
+      "timestamp": "2026-02-12T13:15:56.248Z",
+      "type": "AUTH",
+      "userId": null,
+      "action": "Login failed - user not found",
+      "details": {
+        "username": "admin"
+      },
+      "platform": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "25e3f0cb-3da9-4327-a9bb-0dd4adb5ff57",
+      "timestamp": "2026-02-12T13:15:58.010Z",
+      "type": "AUTH",
+      "userId": null,
+      "action": "Login failed - user not found",
+      "details": {
+        "username": "admin"
+      },
+      "platform": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "06696cb4-00f9-4064-a0a7-097456a88a91",
+      "timestamp": "2026-02-12T13:16:01.648Z",
+      "type": "AUTH",
+      "userId": "0c1301b2-320a-4973-a667-fdaf149fbb04",
+      "action": "Admin user initialized",
+      "details": {},
+      "platform": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "c65dddf9-2c8c-452b-b571-3fdce1d92ebc",
+      "timestamp": "2026-02-12T13:16:13.204Z",
+      "type": "AUTH",
+      "userId": "0c1301b2-320a-4973-a667-fdaf149fbb04",
+      "action": "Login successful",
+      "details": {},
+      "platform": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "d049a253-9d28-4eca-aa1c-71013c616782",
+      "timestamp": "2026-02-12T13:18:05.941Z",
+      "type": "INFO",
+      "userId": "0c1301b2-320a-4973-a667-fdaf149fbb04",
+      "action": "Agreement created",
+      "details": {
+        "agreementId": "f20281d4-14d6-4043-842e-75feb785a4d7",
+        "type": "bmatek",
+        "clientName": "אורן"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "b2c5a66d-b8d4-450c-ae29-3ed74e559d0f",
+      "timestamp": "2026-02-12T14:03:44.966Z",
+      "type": "INFO",
+      "userId": "0c1301b2-320a-4973-a667-fdaf149fbb04",
+      "action": "Agreement deleted",
+      "details": {
+        "agreementId": "f20281d4-14d6-4043-842e-75feb785a4d7",
+        "clientName": "אורן"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "ac9cb2f4-4abc-42bf-b02a-b1d4668fed8c",
+      "timestamp": "2026-02-12T14:04:35.278Z",
+      "type": "INFO",
+      "userId": "0c1301b2-320a-4973-a667-fdaf149fbb04",
+      "action": "Agreement created",
+      "details": {
+        "agreementId": "a4e1015e-94e5-4c49-adde-381361081ece",
+        "type": "bmatek",
+        "clientName": "עורך דין אורן שפייזר בע\"מ"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "e3f6a2e7-4be9-476d-9a1b-d8fbc14b1764",
+      "timestamp": "2026-02-12T14:22:56.732Z",
+      "type": "SIGN",
+      "userId": null,
+      "action": "Agreement signed by client",
+      "details": {
+        "agreementId": "a4e1015e-94e5-4c49-adde-381361081ece",
+        "clientName": "עורך דין אורן שפייזר בע\"מ"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "3550ca4c-2a75-4444-8ee7-9997cea3cb57",
+      "timestamp": "2026-02-15T10:22:24.222Z",
+      "type": "AUTH",
+      "userId": null,
+      "action": "Invalid token",
+      "details": {
+        "error": "jwt expired"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "9c954401-8bf3-4da0-884d-ac159078f801",
+      "timestamp": "2026-02-15T10:23:04.483Z",
+      "type": "AUTH",
+      "userId": "0c1301b2-320a-4973-a667-fdaf149fbb04",
+      "action": "Login failed - wrong password",
+      "details": {},
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "2be8d09d-029b-477c-8402-36f98c8623e4",
+      "timestamp": "2026-02-15T10:24:02.637Z",
+      "type": "AUTH",
+      "userId": "0c1301b2-320a-4973-a667-fdaf149fbb04",
+      "action": "Login failed - wrong password",
+      "details": {},
+      "platform": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "8c585440-1385-41be-874c-e00a6916b494",
+      "timestamp": "2026-02-15T10:24:04.474Z",
+      "type": "AUTH",
+      "userId": "0c1301b2-320a-4973-a667-fdaf149fbb04",
+      "action": "Login failed - wrong password",
+      "details": {},
+      "platform": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "8575521d-124c-4b67-ba11-efd06842aa0d",
+      "timestamp": "2026-02-15T10:24:21.620Z",
+      "type": "AUTH",
+      "userId": "0c1301b2-320a-4973-a667-fdaf149fbb04",
+      "action": "Login failed - wrong password",
+      "details": {},
+      "platform": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "27d727dc-1f60-4eee-857d-b9e0f89f55f8",
+      "timestamp": "2026-02-15T10:28:36.019Z",
+      "type": "AUTH",
+      "userId": "0c1301b2-320a-4973-a667-fdaf149fbb04",
+      "action": "Login failed - wrong password",
+      "details": {},
+      "platform": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "a2f83372-1753-4b0b-be9d-93aca226d777",
+      "timestamp": "2026-02-15T10:35:41.163Z",
+      "type": "AUTH",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Admin user initialized",
+      "details": {},
+      "platform": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "6383d3b5-029f-4250-bd56-3320a5a35739",
+      "timestamp": "2026-02-15T10:36:21.678Z",
+      "type": "AUTH",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Login successful",
+      "details": {},
+      "platform": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "fc8c2da6-fa5a-4aef-b7d2-2061a5bd7be0",
+      "timestamp": "2026-02-15T10:53:11.763Z",
+      "type": "INFO",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Agreement created",
+      "details": {
+        "agreementId": "6cc938ac-706d-4403-90f9-1f19d1d8e1cf",
+        "type": "bmatek",
+        "clientName": "אבי בן גד שיווק דיו וטונרים בעמ"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "c0f292bf-794f-4166-9a5c-b70008bffd77",
+      "timestamp": "2026-02-15T11:12:26.037Z",
+      "type": "SIGN",
+      "userId": null,
+      "action": "Agreement signed by client",
+      "details": {
+        "agreementId": "6cc938ac-706d-4403-90f9-1f19d1d8e1cf",
+        "clientName": "אבי בן גד שיווק דיו וטונרים בעמ"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "920fc744-ed98-4271-bd84-66229e804f28",
+      "timestamp": "2026-02-15T11:15:33.123Z",
+      "type": "INFO",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Agreement deleted",
+      "details": {
+        "agreementId": "6cc938ac-706d-4403-90f9-1f19d1d8e1cf",
+        "clientName": "אבי בן גד שיווק דיו וטונרים בעמ"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "feabb952-99c0-4512-ab19-50e311454f33",
+      "timestamp": "2026-02-15T11:16:31.091Z",
+      "type": "INFO",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Agreement created",
+      "details": {
+        "agreementId": "26e33e68-3739-4aec-a5ea-aaa0d3eb8999",
+        "type": "bmatek",
+        "clientName": "אבי בן גד שיווק דיו וטונרים בעמ"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "74f4dd80-7e8f-4fd4-be1f-3cd06ded2d93",
+      "timestamp": "2026-02-15T11:19:07.184Z",
+      "type": "SEND",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Agreement sent via whatsapp",
+      "details": {
+        "agreementId": "26e33e68-3739-4aec-a5ea-aaa0d3eb8999",
+        "via": "whatsapp",
+        "recipient": "0523715599"
+      },
+      "platform": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "6c2640a1-ceaa-4424-9dfc-286548995a30",
+      "timestamp": "2026-02-15T11:25:34.486Z",
+      "type": "SEND",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Agreement sent via link",
+      "details": {
+        "agreementId": "26e33e68-3739-4aec-a5ea-aaa0d3eb8999",
+        "via": "link",
+        "recipient": ""
+      },
+      "platform": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "55d39c83-c525-4bbc-af88-9826ff3aa96e",
+      "timestamp": "2026-02-15T11:29:47.650Z",
+      "type": "SIGN",
+      "userId": null,
+      "action": "Agreement signed by client",
+      "details": {
+        "agreementId": "26e33e68-3739-4aec-a5ea-aaa0d3eb8999",
+        "clientName": "אבי בן גד שיווק דיו וטונרים בעמ"
+      },
+      "platform": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "662182c0-51ae-41ca-8b5b-bf2e6b81742d",
+      "timestamp": "2026-02-15T11:45:52.447Z",
+      "type": "INFO",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Agreement deleted",
+      "details": {
+        "agreementId": "26e33e68-3739-4aec-a5ea-aaa0d3eb8999",
+        "clientName": "אבי בן גד שיווק דיו וטונרים בעמ"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "77b58d1f-c7dd-40e4-a01e-43738c9ca921",
+      "timestamp": "2026-02-15T11:45:54.644Z",
+      "type": "INFO",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Agreement deleted",
+      "details": {
+        "agreementId": "a4e1015e-94e5-4c49-adde-381361081ece",
+        "clientName": "עורך דין אורן שפייזר בע\"מ"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "349c6e3f-516d-488a-b42d-3189577d3bef",
+      "timestamp": "2026-02-15T11:46:18.987Z",
+      "type": "INFO",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Agreement created",
+      "details": {
+        "agreementId": "6767e493-c8b2-4ccd-bac8-62901ab513e8",
+        "type": "bmatek",
+        "clientName": "אבי בן גד שיווק דיו וטונרים בעמ"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "ce0e9a18-764e-4bac-9d87-12a743dff5b0",
+      "timestamp": "2026-02-15T11:46:29.451Z",
+      "type": "SEND",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Agreement sent via whatsapp",
+      "details": {
+        "agreementId": "6767e493-c8b2-4ccd-bac8-62901ab513e8",
+        "via": "whatsapp",
+        "recipient": "0523715599"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "fba3d153-16b6-428a-9a70-5325d080af96",
+      "timestamp": "2026-02-15T11:48:41.905Z",
+      "type": "SIGN",
+      "userId": null,
+      "action": "Agreement signed by client",
+      "details": {
+        "agreementId": "6767e493-c8b2-4ccd-bac8-62901ab513e8",
+        "clientName": "אבי בן גד שיווק דיו וטונרים בעמ"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "415a7e75-7b69-41a3-9976-0861490bece8",
+      "timestamp": "2026-02-15T12:26:31.518Z",
+      "type": "INFO",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Agreement created",
+      "details": {
+        "agreementId": "b9af4372-795c-4837-abbf-401ad5991ba0",
+        "type": "bagda",
+        "clientName": "אבי בן גד שיווק דיו וטונרים בגדאא"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "834aebcf-5bd0-428d-a5a3-2fb77741a113",
+      "timestamp": "2026-02-15T12:58:25.815Z",
+      "type": "INFO",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Agreement created",
+      "details": {
+        "agreementId": "3895d5c6-91bf-42d2-891a-d812584907d7",
+        "type": "bagda",
+        "clientName": "אבי בן גד שיווק דיו וטונרים בעמ"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "68a4126a-4164-421c-bacd-4317e63b9c7a",
+      "timestamp": "2026-02-15T12:58:27.664Z",
+      "type": "SEND",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Agreement sent via link",
+      "details": {
+        "agreementId": "3895d5c6-91bf-42d2-891a-d812584907d7",
+        "via": "link",
+        "recipient": ""
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "36bf9806-e021-4d70-a488-9a4140add323",
+      "timestamp": "2026-02-15T13:05:09.396Z",
+      "type": "INFO",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Agreement deleted",
+      "details": {
+        "agreementId": "b9af4372-795c-4837-abbf-401ad5991ba0",
+        "clientName": "אבי בן גד שיווק דיו וטונרים בגדאא"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "896169d3-7c3c-4644-b0ff-35b18f44ebd4",
+      "timestamp": "2026-02-15T13:05:19.257Z",
+      "type": "INFO",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Agreement updated",
+      "details": {
+        "agreementId": "3895d5c6-91bf-42d2-891a-d812584907d7"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "839de1cc-d310-4b8c-a48e-3b7283d78bd9",
+      "timestamp": "2026-02-15T13:05:24.340Z",
+      "type": "INFO",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Agreement deleted",
+      "details": {
+        "agreementId": "6767e493-c8b2-4ccd-bac8-62901ab513e8",
+        "clientName": "אבי בן גד שיווק דיו וטונרים בעמ"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "0ab9a055-5f4c-4cc9-a799-80c669fae13a",
+      "timestamp": "2026-02-15T13:07:40.097Z",
+      "type": "INFO",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Agreement deleted",
+      "details": {
+        "agreementId": "3895d5c6-91bf-42d2-891a-d812584907d7",
+        "clientName": "אבי בן גד שיווק דיו וטונרים בעמ"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "6ce820af-eccb-4c6b-bf63-e0fa90c83165",
+      "timestamp": "2026-02-15T13:08:12.752Z",
+      "type": "INFO",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Agreement created",
+      "details": {
+        "agreementId": "10fc5020-5d85-4df3-9eae-8d5159ef435d",
+        "type": "bmatek",
+        "clientName": "אבי בן גד שיווק דיו וטונרים בעמ"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "d3365167-6ab8-4ded-83b8-5a160e8384a6",
+      "timestamp": "2026-02-15T13:08:14.952Z",
+      "type": "SEND",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Agreement sent via link",
+      "details": {
+        "agreementId": "10fc5020-5d85-4df3-9eae-8d5159ef435d",
+        "via": "link",
+        "recipient": ""
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "70826f60-6e90-4aac-ad7e-27dfabdc83f4",
+      "timestamp": "2026-02-15T13:10:13.332Z",
+      "type": "INFO",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Agreement updated",
+      "details": {
+        "agreementId": "10fc5020-5d85-4df3-9eae-8d5159ef435d"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "eee73689-85e9-4223-b8ad-2adc1101048a",
+      "timestamp": "2026-02-15T13:13:39.122Z",
+      "type": "INFO",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Agreement updated",
+      "details": {
+        "agreementId": "10fc5020-5d85-4df3-9eae-8d5159ef435d"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "2ffe2d61-1473-4c5b-9bf7-901c61fc1e84",
+      "timestamp": "2026-02-15T13:17:12.569Z",
+      "type": "INFO",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Agreement updated",
+      "details": {
+        "agreementId": "10fc5020-5d85-4df3-9eae-8d5159ef435d"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "b75232d1-f89d-4e33-8e35-e80d857a8145",
+      "timestamp": "2026-02-15T13:25:17.737Z",
+      "type": "INFO",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Agreement updated",
+      "details": {
+        "agreementId": "10fc5020-5d85-4df3-9eae-8d5159ef435d"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "fd54fb0a-549c-4fbb-bc63-facb2d77f83c",
+      "timestamp": "2026-02-15T13:25:57.083Z",
+      "type": "SIGN",
+      "userId": null,
+      "action": "Agreement signed by client",
+      "details": {
+        "agreementId": "10fc5020-5d85-4df3-9eae-8d5159ef435d",
+        "clientName": "אבי בן גד שיווק דיו וטונרים בעמ"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "cb42c30a-0c51-469d-b616-4bb5b4114659",
+      "timestamp": "2026-02-15T13:30:36.610Z",
+      "type": "INFO",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "User created",
+      "details": {
+        "newUserId": "2a01a6d7-91ad-4181-bdfb-7952014fb2f1",
+        "username": "ns"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "0c197d0e-fbbd-457d-afb0-e342b44266ad",
+      "timestamp": "2026-02-15T13:31:08.815Z",
+      "type": "AUTH",
+      "userId": "2a01a6d7-91ad-4181-bdfb-7952014fb2f1",
+      "action": "Login successful",
+      "details": {},
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "583429d2-c858-44d3-becc-e74a8a32347e",
+      "timestamp": "2026-02-15T13:37:05.027Z",
+      "type": "AUTH",
+      "userId": "2a01a6d7-91ad-4181-bdfb-7952014fb2f1",
+      "action": "Logout",
+      "details": {},
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "d7e54a43-6340-4032-a4b6-133baa9cc8ff",
+      "timestamp": "2026-02-15T13:37:15.037Z",
+      "type": "AUTH",
+      "userId": "2a01a6d7-91ad-4181-bdfb-7952014fb2f1",
+      "action": "Login successful",
+      "details": {},
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "7444ba3c-5782-4572-8cef-74d758ec4cf0",
+      "timestamp": "2026-02-15T13:42:13.988Z",
+      "type": "INFO",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Agreement created",
+      "details": {
+        "agreementId": "f03cbf03-f831-4765-a1ab-3e163e71ed85",
+        "type": "bagda",
+        "clientName": "or"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "390b33fe-74b2-434d-9b00-f3931e1b1a44",
+      "timestamp": "2026-02-15T13:42:16.115Z",
+      "type": "SEND",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Agreement sent via link",
+      "details": {
+        "agreementId": "f03cbf03-f831-4765-a1ab-3e163e71ed85",
+        "via": "link",
+        "recipient": ""
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "9fefd78a-b71b-4a2d-a7e2-61f586b51be7",
+      "timestamp": "2026-02-15T13:43:32.413Z",
+      "type": "SIGN",
+      "userId": null,
+      "action": "Agreement signed by client",
+      "details": {
+        "agreementId": "f03cbf03-f831-4765-a1ab-3e163e71ed85",
+        "clientName": "or"
+      },
+      "platform": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "04609d7f-5e51-4dea-ba9a-89e8db03bdc6",
+      "timestamp": "2026-02-15T13:51:06.607Z",
+      "type": "INFO",
+      "userId": "2a01a6d7-91ad-4181-bdfb-7952014fb2f1",
+      "action": "Agreement created",
+      "details": {
+        "agreementId": "4002e91c-ea96-46f2-894f-340691aa4fbd",
+        "type": "bagda",
+        "clientName": "בגדא"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "0300596b-0ba4-4a4c-bfd8-4092d49da782",
+      "timestamp": "2026-02-15T13:51:12.085Z",
+      "type": "SEND",
+      "userId": "2a01a6d7-91ad-4181-bdfb-7952014fb2f1",
+      "action": "Agreement sent via link",
+      "details": {
+        "agreementId": "4002e91c-ea96-46f2-894f-340691aa4fbd",
+        "via": "link",
+        "recipient": ""
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "02a0cb51-3028-4004-bfc5-898558efcfe8",
+      "timestamp": "2026-02-15T13:56:26.713Z",
+      "type": "AUTH",
+      "userId": "2a01a6d7-91ad-4181-bdfb-7952014fb2f1",
+      "action": "Admin access denied",
+      "details": {
+        "path": "/4002e91c-ea96-46f2-894f-340691aa4fbd"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "488b9007-2c12-4791-bca3-a661dd714679",
+      "timestamp": "2026-02-15T13:56:34.495Z",
+      "type": "AUTH",
+      "userId": "2a01a6d7-91ad-4181-bdfb-7952014fb2f1",
+      "action": "Admin access denied",
+      "details": {
+        "path": "/4002e91c-ea96-46f2-894f-340691aa4fbd"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "700279a6-3827-4cfc-953a-226f6d0df8b6",
+      "timestamp": "2026-02-15T13:58:34.118Z",
+      "type": "AUTH",
+      "userId": "2a01a6d7-91ad-4181-bdfb-7952014fb2f1",
+      "action": "Admin access denied",
+      "details": {
+        "path": "/4002e91c-ea96-46f2-894f-340691aa4fbd"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "8464444b-a160-42f2-9f38-7a955022538d",
+      "timestamp": "2026-02-15T13:58:45.847Z",
+      "type": "AUTH",
+      "userId": "2a01a6d7-91ad-4181-bdfb-7952014fb2f1",
+      "action": "Admin access denied",
+      "details": {
+        "path": "/4002e91c-ea96-46f2-894f-340691aa4fbd"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "1cad8398-87f3-4e97-ad72-b83cae5c5786",
+      "timestamp": "2026-02-15T14:00:40.262Z",
+      "type": "INFO",
+      "userId": "2a01a6d7-91ad-4181-bdfb-7952014fb2f1",
+      "action": "Agreement deleted",
+      "details": {
+        "agreementId": "4002e91c-ea96-46f2-894f-340691aa4fbd",
+        "clientName": "בגדא"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "60664a4a-1850-46e9-94af-e73d0397f4cd",
+      "timestamp": "2026-02-15T14:04:55.637Z",
+      "type": "INFO",
+      "userId": "2a01a6d7-91ad-4181-bdfb-7952014fb2f1",
+      "action": "Agreement created",
+      "details": {
+        "agreementId": "1ae1ec95-4a3b-4f5f-b933-ea6d0ed62ee9",
+        "type": "bagda",
+        "clientName": "Jose"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "c9a4371e-76cf-47eb-a623-37940ee3e9f2",
+      "timestamp": "2026-02-15T14:04:57.524Z",
+      "type": "SEND",
+      "userId": "2a01a6d7-91ad-4181-bdfb-7952014fb2f1",
+      "action": "Agreement sent via link",
+      "details": {
+        "agreementId": "1ae1ec95-4a3b-4f5f-b933-ea6d0ed62ee9",
+        "via": "link",
+        "recipient": ""
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "23d79aac-446b-4dc7-828a-faf86a94cfd7",
+      "timestamp": "2026-02-15T14:09:20.103Z",
+      "type": "SIGN",
+      "userId": null,
+      "action": "Agreement signed by client",
+      "details": {
+        "agreementId": "1ae1ec95-4a3b-4f5f-b933-ea6d0ed62ee9",
+        "clientName": "Jose"
+      },
+      "platform": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "6d04b0c8-0b2e-466c-a1de-23b57a790b93",
+      "timestamp": "2026-02-15T14:15:12.752Z",
+      "type": "INFO",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Agreement deleted",
+      "details": {
+        "agreementId": "10fc5020-5d85-4df3-9eae-8d5159ef435d",
+        "clientName": "אבי בן גד שיווק דיו וטונרים בעמ"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "d9cc7b36-0b2f-4b89-8780-9ef6bf1b7593",
+      "timestamp": "2026-02-15T14:15:14.517Z",
+      "type": "INFO",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Agreement deleted",
+      "details": {
+        "agreementId": "f03cbf03-f831-4765-a1ab-3e163e71ed85",
+        "clientName": "or"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "3defa270-6924-4eef-b923-6adea05af097",
+      "timestamp": "2026-02-15T14:15:18.576Z",
+      "type": "INFO",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Agreement deleted",
+      "details": {
+        "agreementId": "1ae1ec95-4a3b-4f5f-b933-ea6d0ed62ee9",
+        "clientName": "Jose"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "ed06f74e-a056-4ef9-b33d-d54846dbcf34",
+      "timestamp": "2026-02-15T14:18:24.895Z",
+      "type": "INFO",
+      "userId": "2a01a6d7-91ad-4181-bdfb-7952014fb2f1",
+      "action": "Agreement created",
+      "details": {
+        "agreementId": "21e587dc-0505-4568-a934-3b6cb7cb1978",
+        "type": "bmatek",
+        "clientName": "or"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "f43e147d-ea75-4a5f-97ac-b88b97f73edf",
+      "timestamp": "2026-02-15T14:18:26.242Z",
+      "type": "SEND",
+      "userId": "2a01a6d7-91ad-4181-bdfb-7952014fb2f1",
+      "action": "Agreement sent via link",
+      "details": {
+        "agreementId": "21e587dc-0505-4568-a934-3b6cb7cb1978",
+        "via": "link",
+        "recipient": ""
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "0916c87c-68e9-48f2-bf13-1b3338326b83",
+      "timestamp": "2026-02-15T14:19:12.157Z",
+      "type": "SEND",
+      "userId": "2a01a6d7-91ad-4181-bdfb-7952014fb2f1",
+      "action": "Agreement sent via link",
+      "details": {
+        "agreementId": "21e587dc-0505-4568-a934-3b6cb7cb1978",
+        "via": "link",
+        "recipient": ""
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "134c21eb-1e18-4c9a-908b-90bf9607c24f",
+      "timestamp": "2026-02-15T14:19:45.551Z",
+      "type": "SIGN",
+      "userId": null,
+      "action": "Agreement signed by client",
+      "details": {
+        "agreementId": "21e587dc-0505-4568-a934-3b6cb7cb1978",
+        "clientName": "or"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    }
+  ],
+  "templates": {
+    "bmatek": {
+      "companyName": "Reshet Times",
+      "parentCompany": "במטק בע\"מ",
+      "companyId": "514074442",
+      "address": "דרך חיפה 19, קריית אתא",
+      "phone": "04-8427272",
+      "fax": "04-8409410"
+    },
+    "bagda": {
+      "companyName": "RESHET TIMES – AIweon",
+      "parentCompany": "בגדא בע\"מ",
+      "companyId": "515100352",
+      "address": "דרך חיפה 19, קריית אתא",
+      "phone": "04-8427272",
+      "fax": "04-8409410"
+    }
+  }
+}

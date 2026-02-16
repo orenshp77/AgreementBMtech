@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>כלי מיקום שדות - Reshet Times</title>
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <style>
+        body {
+            background: #1a1a2e;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .controls {
+            background: #16213e;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .control-group label {
+            font-size: 12px;
+            color: #888;
+        }
+        select, input {
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: 1px solid #333;
+            background: #0f0f23;
+            color: #fff;
+            font-size: 14px;
+        }
+        .btn {
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #e91e63, #ff5722);
+            color: #fff;
+        }
+        .btn-secondary {
+            background: #333;
+            color: #fff;
+        }
+        .page-container {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            cursor: crosshair;
+        }
+        .page-image {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .field-marker {
+            position: absolute;
+            padding: 2px 6px;
+            font-size: 12px;
+            font-weight: bold;
+            border: 2px solid #e91e63;
+            background: rgba(233, 30, 99, 0.8);
+            color: #fff;
+            cursor: move;
+            user-select: none;
+            white-space: nowrap;
+        }
+        .field-marker.selected {
+            border-color: #00ff00;
+            background: rgba(0, 255, 0, 0.8);
+        }
+        .coordinates {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.8);
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .output-panel {
+            background: #16213e;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .output-panel h3 {
+            margin-top: 0;
+            color: #e91e63;
+        }
+        .output-code {
+            background: #0f0f23;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .field-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .field-btn {
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 2px solid #333;
+            background: transparent;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .field-btn:hover, .field-btn.active {
+            border-color: #e91e63;
+            background: rgba(233, 30, 99, 0.2);
+        }
+        .instructions {
+            background: rgba(233, 30, 99, 0.1);
+            border: 1px solid #e91e63;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .instructions h4 {
+            margin-top: 0;
+            color: #e91e63;
+        }
+        .instructions ol {
+            margin: 0;
+            padding-right: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>כלי מיקום שדות על תמונות PDF</h1>
+
+    <div class="instructions">
+        <h4>הוראות שימוש:</h4>
+        <ol>
+            <li>בחר סוג הסכם (במטק/בגדא) ומספר עמוד</li>
+            <li>בחר שדה מהרשימה למטה</li>
+            <li>לחץ על התמונה במקום שבו רוצים למקם את השדה</li>
+            <li>גרור את השדה לכיוון המדויק</li>
+            <li>חזור לכל השדות בכל העמודים</li>
+            <li>העתק את הקוד המיוצר</li>
+        </ol>
+    </div>
+
+    <div class="controls">
+        <div class="control-group">
+            <label>סוג הסכם</label>
+            <select id="templateType" onchange="loadPage()">
+                <option value="bmatek">במטק</option>
+                <option value="bagda">בגדא</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <label>עמוד</label>
+            <select id="pageNumber" onchange="loadPage()">
+                <option value="1">1</option>
+                <option value="2" selected>2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+                <option value="11">11</option>
+                <option value="12">12</option>
+                <option value="13">13</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <label>גודל גופן</label>
+            <input type="number" id="fontSize" value="14" min="8" max="24" onchange="updateSelectedMarker()">
+        </div>
+        <button class="btn btn-secondary" onclick="clearPageMarkers()">נקה עמוד</button>
+        <button class="btn btn-primary" onclick="generateCode()">צור קוד</button>
+    </div>
+
+    <div class="field-list">
+        <button class="field-btn" data-field="companyName" onclick="selectField(this)">XXX1 - שם חברה</button>
+        <button class="field-btn" data-field="companyId" onclick="selectField(this)">XXX2 - ח.פ.</button>
+        <button class="field-btn" data-field="contactName" onclick="selectField(this)">XXX3 - שם איש קשר</button>
+        <button class="field-btn" data-field="contactId" onclick="selectField(this)">XXX4 - ת.ז.</button>
+        <button class="field-btn" data-field="monthlyAmount" onclick="selectField(this)">XXX5 - סכום חודשי</button>
+        <button class="field-btn" data-field="paymentDay" onclick="selectField(this)">XXX6 - יום תשלום</button>
+        <button class="field-btn" data-field="effectiveDate" onclick="selectField(this)">XXX7 - תאריך תחילה</button>
+        <button class="field-btn" data-field="duration" onclick="selectField(this)">XXX8 - משך חודשים</button>
+        <button class="field-btn" data-field="agreementDate" onclick="selectField(this)">XXX9 - תאריך הסכם</button>
+        <button class="field-btn" data-field="clientSignature" onclick="selectField(this)">XXX10 - חתימה</button>
+        <button class="field-btn" data-field="notes" onclick="selectField(this)">XXX11 - הערות</button>
+    </div>
+
+    <div class="page-container" id="pageContainer">
+        <img src="" class="page-image" id="pageImage" onclick="placeMarker(event)">
+        <!-- Markers will be added here -->
+    </div>
+
+    <div class="coordinates" id="coordinates">X: 0% | Y: 0%</div>
+
+    <div class="output-panel">
+        <h3>קוד מיקומי השדות</h3>
+        <div class="output-code" id="outputCode">// לחץ על "צור קוד" להפקת הקוד</div>
+    </div>
+
+    <script>
+        // Field positions storage
+        const fieldPositions = {
+            bmatek: {},
+            bagda: {}
+        };
+
+        let selectedField = null;
+        let draggedMarker = null;
+        let dragOffset = { x: 0, y: 0 };
+
+        // Load page
+        function loadPage() {
+            const type = document.getElementById('templateType').value;
+            const page = document.getElementById('pageNumber').value;
+            const img = document.getElementById('pageImage');
+            img.src = `/assets/images/templates/${type}/page-${page}.jpg`;
+
+            // Clear existing markers
+            document.querySelectorAll('.field-marker').forEach(m => m.remove());
+
+            // Restore markers for this page
+            const pagePositions = fieldPositions[type][page] || [];
+            pagePositions.forEach(pos => {
+                createMarker(pos.field, pos.x, pos.y, pos.fontSize);
+            });
+        }
+
+        // Select field to place
+        function selectField(btn) {
+            document.querySelectorAll('.field-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            selectedField = btn.dataset.field;
+        }
+
+        // Place marker on click
+        function placeMarker(event) {
+            if (!selectedField) {
+                alert('בחר שדה תחילה');
+                return;
+            }
+
+            const container = document.getElementById('pageContainer');
+            const rect = container.getBoundingClientRect();
+
+            // Calculate percentage position
+            const x = ((rect.right - event.clientX) / rect.width) * 100;
+            const y = ((event.clientY - rect.top) / rect.height) * 100;
+
+            // Remove existing marker for this field on this page
+            const existingMarker = document.querySelector(`.field-marker[data-field="${selectedField}"]`);
+            if (existingMarker) {
+                existingMarker.remove();
+            }
+
+            const fontSize = parseInt(document.getElementById('fontSize').value);
+            createMarker(selectedField, x, y, fontSize);
+            savePosition(selectedField, x, y, fontSize);
+        }
+
+        // Create visual marker
+        function createMarker(field, x, y, fontSize) {
+            const container = document.getElementById('pageContainer');
+            const marker = document.createElement('div');
+            marker.className = 'field-marker';
+            marker.dataset.field = field;
+            marker.style.right = x + '%';
+            marker.style.top = y + '%';
+            marker.style.fontSize = fontSize + 'px';
+            marker.textContent = getFieldLabel(field);
+
+            // Make draggable
+            marker.addEventListener('mousedown', startDrag);
+            marker.addEventListener('click', (e) => {
+                e.stopPropagation();
+                selectMarker(marker);
+            });
+
+            container.appendChild(marker);
+        }
+
+        function getFieldLabel(field) {
+            const labels = {
+                companyName: 'שם חברה',
+                companyId: 'ח.פ.',
+                contactName: 'איש קשר',
+                contactId: 'ת.ז.',
+                monthlyAmount: 'סכום',
+                paymentDay: 'יום תשלום',
+                effectiveDate: 'תאריך תחילה',
+                duration: 'משך',
+                agreementDate: 'תאריך',
+                clientSignature: 'חתימה',
+                notes: 'הערות'
+            };
+            return labels[field] || field;
+        }
+
+        // Drag functionality
+        function startDrag(event) {
+            event.stopPropagation();
+            draggedMarker = event.target;
+            const rect = draggedMarker.getBoundingClientRect();
+            dragOffset.x = event.clientX - rect.left;
+            dragOffset.y = event.clientY - rect.top;
+
+            document.addEventListener('mousemove', onDrag);
+            document.addEventListener('mouseup', stopDrag);
+        }
+
+        function onDrag(event) {
+            if (!draggedMarker) return;
+
+            const container = document.getElementById('pageContainer');
+            const rect = container.getBoundingClientRect();
+
+            const x = ((rect.right - event.clientX + dragOffset.x) / rect.width) * 100;
+            const y = ((event.clientY - rect.top - dragOffset.y) / rect.height) * 100;
+
+            draggedMarker.style.right = x + '%';
+            draggedMarker.style.top = y + '%';
+
+            document.getElementById('coordinates').textContent = `X: ${x.toFixed(1)}% | Y: ${y.toFixed(1)}%`;
+        }
+
+        function stopDrag() {
+            if (draggedMarker) {
+                const field = draggedMarker.dataset.field;
+                const x = parseFloat(draggedMarker.style.right);
+                const y = parseFloat(draggedMarker.style.top);
+                const fontSize = parseInt(draggedMarker.style.fontSize);
+                savePosition(field, x, y, fontSize);
+            }
+            draggedMarker = null;
+            document.removeEventListener('mousemove', onDrag);
+            document.removeEventListener('mouseup', stopDrag);
+        }
+
+        function selectMarker(marker) {
+            document.querySelectorAll('.field-marker').forEach(m => m.classList.remove('selected'));
+            marker.classList.add('selected');
+            selectedField = marker.dataset.field;
+
+            // Update field buttons
+            document.querySelectorAll('.field-btn').forEach(b => {
+                b.classList.toggle('active', b.dataset.field === selectedField);
+            });
+
+            // Update font size input
+            document.getElementById('fontSize').value = parseInt(marker.style.fontSize);
+        }
+
+        function updateSelectedMarker() {
+            const selectedMarker = document.querySelector('.field-marker.selected');
+            if (selectedMarker) {
+                const fontSize = parseInt(document.getElementById('fontSize').value);
+                selectedMarker.style.fontSize = fontSize + 'px';
+
+                const field = selectedMarker.dataset.field;
+                const x = parseFloat(selectedMarker.style.right);
+                const y = parseFloat(selectedMarker.style.top);
+                savePosition(field, x, y, fontSize);
+            }
+        }
+
+        // Save position to storage
+        function savePosition(field, x, y, fontSize) {
+            const type = document.getElementById('templateType').value;
+            const page = document.getElementById('pageNumber').value;
+
+            if (!fieldPositions[type][page]) {
+                fieldPositions[type][page] = [];
+            }
+
+            // Remove existing entry for this field
+            fieldPositions[type][page] = fieldPositions[type][page].filter(p => p.field !== field);
+
+            // Add new position
+            fieldPositions[type][page].push({
+                field: field,
+                x: parseFloat(x.toFixed(1)),
+                y: parseFloat(y.toFixed(1)),
+                fontSize: fontSize,
+                isSignature: field === 'clientSignature'
+            });
+        }
+
+        function clearPageMarkers() {
+            const type = document.getElementById('templateType').value;
+            const page = document.getElementById('pageNumber').value;
+            fieldPositions[type][page] = [];
+            document.querySelectorAll('.field-marker').forEach(m => m.remove());
+        }
+
+        // Generate code output
+        function generateCode() {
+            let code = 'const fieldPositions = {\n';
+
+            ['bmatek', 'bagda'].forEach(type => {
+                code += `    ${type}: {\n`;
+                Object.keys(fieldPositions[type]).sort((a, b) => parseInt(a) - parseInt(b)).forEach(page => {
+                    const positions = fieldPositions[type][page];
+                    if (positions && positions.length > 0) {
+                        code += `        ${page}: [ // Page ${page}\n`;
+                        positions.forEach(pos => {
+                            code += `            { field: '${pos.field}', x: ${pos.x}, y: ${pos.y}, fontSize: ${pos.fontSize}`;
+                            if (pos.field === 'monthlyAmount') code += `, suffix: ' ₪'`;
+                            if (pos.isSignature) code += `, isSignature: true`;
+                            code += ` },\n`;
+                        });
+                        code += `        ],\n`;
+                    }
+                });
+                code += `    },\n`;
+            });
+
+            code += '};\n';
+
+            document.getElementById('outputCode').textContent = code;
+        }
+
+        // Track mouse position
+        document.getElementById('pageContainer').addEventListener('mousemove', (event) => {
+            const container = document.getElementById('pageContainer');
+            const rect = container.getBoundingClientRect();
+            const x = ((rect.right - event.clientX) / rect.width) * 100;
+            const y = ((event.clientY - rect.top) / rect.height) * 100;
+            document.getElementById('coordinates').textContent = `X: ${x.toFixed(1)}% | Y: ${y.toFixed(1)}%`;
+        });
+
+        // Initialize
+        loadPage();
+    </script>
+</body>
+</html>

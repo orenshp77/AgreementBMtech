@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>חתימה על הסכם - Reshet Times</title>
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            background: var(--bg-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .signature-page {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+        .logo-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo-header img {
+            max-width: 200px;
+            margin-bottom: 15px;
+        }
+        .info-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            color: var(--text-secondary);
+        }
+        .info-value {
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+        .signature-section {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px dashed var(--accent-blue);
+        }
+        .signature-section h3 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: var(--accent-blue);
+        }
+        .signature-canvas-container {
+            background: #fff;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            touch-action: none;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        #signatureCanvas {
+            width: 100%;
+            height: 200px;
+            display: block;
+            cursor: crosshair;
+            touch-action: none;
+        }
+        .signature-actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .bottom-actions {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-secondary);
+            padding: 15px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.4);
+            z-index: 100;
+        }
+        .view-agreement-btn {
+            display: block;
+            width: 100%;
+            text-align: center;
+            padding: 15px 20px;
+            background: #e91e63;
+            color: #fff;
+            font-size: 18px;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 8px;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+        }
+        /* Mobile optimizations */
+        @media (max-width: 480px) {
+            .signature-page {
+                padding: 15px;
+                padding-bottom: 120px;
+            }
+            #signatureCanvas {
+                height: 180px;
+            }
+            .info-row {
+                flex-direction: column;
+                gap: 5px;
+            }
+        }
+        /* iOS Safari fixes */
+        @supports (-webkit-touch-callout: none) {
+            .signature-canvas-container {
+                -webkit-overflow-scrolling: auto;
+            }
+        }
+        .already-signed {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        .already-signed h2 {
+            color: var(--accent-green);
+            margin-bottom: 20px;
+        }
+        .checkmark {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--accent-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+        .checkmark svg {
+            width: 40px;
+            height: 40px;
+            fill: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="loader-overlay">
+        <div class="flex flex-col items-center">
+            <div class="loader"></div>
+            <p class="loader-text">טוען...</p>
+        </div>
+    </div>
+
+    <div class="signature-page" id="mainContent">
+        <!-- Will be populated by JavaScript -->
+    </div>
+
+    <script src="/assets/js/main.js"></script>
+    <script>
+        // Get agreement ID from URL
+        const pathParts = window.location.pathname.split('/');
+        const agreementId = pathParts[pathParts.length - 1];
+
+        let canvas, ctx;
+        let isDrawing = false;
+        let lastX = 0;
+        let lastY = 0;
+        let agreement = null;
+
+        if (!agreementId) {
+            AppUtils.showError('הסכם לא נמצא');
+            setTimeout(() => window.location.href = '/', 2000);
+        }
+
+        // Load agreement
+        document.addEventListener('DOMContentLoaded', loadAgreement);
+
+        async function loadAgreement() {
+            try {
+                AppUtils.showLoader('טוען הסכם...');
+                const result = await API.agreements.getById(agreementId);
+                agreement = result.data;
+                AppUtils.hideLoader();
+
+                if (agreement.status === 'signed' || agreement.status === 'completed') {
+                    renderAlreadySigned();
+                } else {
+                    renderSignaturePage();
+                    initSignaturePad();
+                }
+
+            } catch (error) {
+                AppUtils.hideLoader();
+                AppUtils.showError(error.message);
+            }
+        }
+
+        function renderAlreadySigned() {
+            const content = document.getElementById('mainContent');
+            content.innerHTML = `
+                <div class="logo-header">
+                    <img src="/assets/images/open.jpg" alt="Reshet Times" onerror="this.style.display='none'">
+                </div>
+                <div class="card already-signed">
+                    <div class="checkmark">
+                        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                    </div>
+                    <h2>ההסכם כבר נחתם!</h2>
+                    <p class="text-secondary">ההסכם נחתם בתאריך ${AppUtils.formatDate(agreement.signedAt)}</p>
+                    <a href="/client/${agreementId}" class="btn btn-primary btn-lg mt-lg">צפה בהסכם</a>
+                </div>
+            `;
+        }
+
+        function renderSignaturePage() {
+            const isBmatek = agreement.type === 'bmatek';
+            const companyName = isBmatek ? 'במטק בע"מ' : 'בגדא בע"מ';
+
+            const content = document.getElementById('mainContent');
+            content.innerHTML = `
+                <div class="logo-header">
+                    <img src="/assets/images/open.jpg" alt="Reshet Times" onerror="this.style.display='none'">
+                    <h2>חתימה על הסכם</h2>
+                    <p class="text-secondary">${companyName}</p>
+                </div>
+
+                <div class="info-card">
+                    <h3 style="margin-bottom: 15px;">פרטי ההסכם</h3>
+                    <div class="info-row">
+                        <span class="info-label">שם החברה:</span>
+                        <span class="info-value">${agreement.companyName}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">איש קשר:</span>
+                        <span class="info-value">${agreement.contactName}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">סכום חודשי:</span>
+                        <span class="info-value">${AppUtils.formatCurrency(agreement.monthlyAmount)}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">תקופה:</span>
+                        <span class="info-value">${agreement.duration} חודשים</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">תאריך תחילה:</span>
+                        <span class="info-value">${AppUtils.formatDate(agreement.effectiveDate)}</span>
+                    </div>
+                </div>
+
+                <a href="/client/${agreementId}" class="view-agreement-btn" target="_blank">
+                    לחץ כאן לצפייה בהסכם המלא
+                </a>
+
+                <div class="signature-section">
+                    <h3>חתום כאן</h3>
+                    <div class="signature-canvas-container">
+                        <canvas id="signatureCanvas"></canvas>
+                    </div>
+                    <div class="signature-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="clearSignature()">
+                            נקה חתימה
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bottom-actions">
+                    <button class="btn btn-success btn-lg btn-block" onclick="submitSignature()">
+                        אישור וחתימה על ההסכם
+                    </button>
+                    <p class="text-center text-sm text-muted">
+                        בלחיצה על הכפתור אני מאשר/ת את תנאי ההסכם
+                    </p>
+                </div>
+            `;
+        }
+
+        function initSignaturePad() {
+            canvas = document.getElementById('signatureCanvas');
+            if (!canvas) return;
+
+            ctx = canvas.getContext('2d');
+
+            // Set canvas size
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+
+            // Mouse events
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+
+            // Touch events
+            canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+            canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+            canvas.addEventListener('touchend', stopDrawing);
+            canvas.addEventListener('touchcancel', stopDrawing);
+        }
+
+        function resizeCanvas() {
+            if (!canvas) return;
+            const rect = canvas.parentElement.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+
+            canvas.width = rect.width * dpr;
+            canvas.height = 200 * dpr;
+            canvas.style.width = rect.width + 'px';
+            canvas.style.height = '200px';
+
+            ctx.scale(dpr, dpr);
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+        }
+
+        function getPosition(e) {
+            const rect = canvas.getBoundingClientRect();
+            if (e.touches) {
+                return {
+                    x: e.touches[0].clientX - rect.left,
+                    y: e.touches[0].clientY - rect.top
+                };
+            }
+            return {
+                x: e.clientX - rect.left,
+                y: e.clientY - rect.top
+            };
+        }
+
+        function startDrawing(e) {
+            e.preventDefault();
+            isDrawing = true;
+            const pos = getPosition(e);
+            lastX = pos.x;
+            lastY = pos.y;
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            e.preventDefault();
+
+            const pos = getPosition(e);
+
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
+
+            lastX = pos.x;
+            lastY = pos.y;
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+        }
+
+        function handleTouchStart(e) {
+            e.preventDefault();
+            startDrawing(e);
+        }
+
+        function handleTouchMove(e) {
+            e.preventDefault();
+            draw(e);
+        }
+
+        function clearSignature() {
+            if (!ctx) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function isCanvasEmpty() {
+            const pixelData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+            for (let i = 3; i < pixelData.length; i += 4) {
+                if (pixelData[i] !== 0) return false;
+            }
+            return true;
+        }
+
+        async function submitSignature() {
+            if (isCanvasEmpty()) {
+                AppUtils.showToast('נא לחתום על ההסכם', 'warning');
+                return;
+            }
+
+            const confirmed = await AppUtils.showConfirm(
+                'אישור חתימה',
+                'האם אתה בטוח שברצונך לחתום על ההסכם? פעולה זו לא ניתנת לביטול.',
+                'חתום',
+                'ביטול'
+            );
+
+            if (!confirmed) return;
+
+            try {
+                AppUtils.showLoader('שומר חתימה...');
+
+                // Get signature as base64
+                const signature = canvas.toDataURL('image/png');
+
+                // Submit signature
+                await API.agreements.sign(agreementId, signature);
+
+                AppUtils.hideLoader();
+
+                // Show success and send options
+                const { value: sendMethod } = await Swal.fire({
+                    title: 'ההסכם נחתם בהצלחה!',
+                    icon: 'success',
+                    html: `
+                        <p class="mb-lg">כיצד תרצה לשלוח את ההסכם החתום?</p>
+                        <div class="flex flex-col gap-md">
+                            <button class="btn btn-primary btn-block send-opt" data-method="email">
+                                שליחה למייל
+                            </button>
+                            <button class="btn btn-success btn-block send-opt" data-method="whatsapp">
+                                שליחה בוואטסאפ
+                            </button>
+                            <button class="btn btn-secondary btn-block send-opt" data-method="sms">
+                                שליחה ב-SMS
+                            </button>
+                        </div>
+                    `,
+                    showConfirmButton: false,
+                    showCancelButton: true,
+                    cancelButtonText: 'סגור',
+                    didOpen: () => {
+                        document.querySelectorAll('.send-opt').forEach(btn => {
+                            btn.addEventListener('click', () => {
+                                Swal.close({ value: btn.dataset.method });
+                            });
+                        });
+                    }
+                });
+
+                if (sendMethod) {
+                    handleSendSignedAgreement(sendMethod);
+                }
+
+                // Refresh page to show "already signed" state
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+
+            } catch (error) {
+                AppUtils.hideLoader();
+                AppUtils.showError(error.message);
+            }
+        }
+
+        function handleSendSignedAgreement(method) {
+            const viewUrl = `${window.location.origin}/client/${agreementId}`;
+            const message = `הסכם חתום - ${agreement.companyName}:\n\n${viewUrl}`;
+
+            if (method === 'email') {
+                window.location.href = `mailto:orenshp77@gmail.com?subject=הסכם חתום - ${agreement.companyName}&body=${encodeURIComponent(message)}`;
+            } else if (method === 'whatsapp') {
+                window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+            } else if (method === 'sms') {
+                window.location.href = `sms:?body=${encodeURIComponent(message)}`;
+            }
+        }
+    </script>
+</body>
+</html>

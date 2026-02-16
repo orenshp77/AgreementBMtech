@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>עריכת הסכמים - מערכת הסכמים</title>
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <div class="loader-overlay">
+        <div class="flex flex-col items-center">
+            <div class="loader"></div>
+            <p class="loader-text">טוען...</p>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-content">
+                <div class="navbar-brand">
+                    <img src="/assets/images/33.jpg" alt="Logo" class="navbar-logo" onerror="this.style.display='none'">
+                    <span class="navbar-title">עריכת הסכמים</span>
+                </div>
+                <div class="navbar-menu">
+                    <a href="/dashboard" class="navbar-link">חזרה ללוח בקרה</a>
+                    <span class="text-secondary">|</span>
+                    <span id="userName" class="text-secondary"></span>
+                    <a href="#" id="logoutBtn" class="navbar-link">התנתק</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container" style="padding-top: 2rem; padding-bottom: 2rem;">
+        <h1 class="mb-lg">עריכת תבניות הסכמים</h1>
+
+        <div class="grid grid-2">
+            <!-- BMTek Template -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 style="margin: 0; color: var(--accent-blue);">הסכם במטק בע"מ</h2>
+                </div>
+                <form id="bmatekForm">
+                    <div class="form-group">
+                        <label class="form-label">שם החברה</label>
+                        <input type="text" id="bmatek-companyName" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">חברת אם</label>
+                        <input type="text" id="bmatek-parentCompany" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">ח.פ</label>
+                        <input type="text" id="bmatek-companyId" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">כתובת</label>
+                        <input type="text" id="bmatek-address" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">טלפון</label>
+                        <input type="text" id="bmatek-phone" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">פקס</label>
+                        <input type="text" id="bmatek-fax" class="form-input">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">שמור שינויים</button>
+                </form>
+            </div>
+
+            <!-- Bagda Template -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 style="margin: 0; color: var(--accent-green);">הסכם בגדא בע"מ</h2>
+                </div>
+                <form id="bagdaForm">
+                    <div class="form-group">
+                        <label class="form-label">שם החברה</label>
+                        <input type="text" id="bagda-companyName" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">חברת אם</label>
+                        <input type="text" id="bagda-parentCompany" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">ח.פ</label>
+                        <input type="text" id="bagda-companyId" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">כתובת</label>
+                        <input type="text" id="bagda-address" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">טלפון</label>
+                        <input type="text" id="bagda-phone" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">פקס</label>
+                        <input type="text" id="bagda-fax" class="form-input">
+                    </div>
+                    <button type="submit" class="btn btn-success btn-block">שמור שינויים</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script src="/assets/js/main.js"></script>
+    <script>
+        // Check auth & admin
+        if (!AppUtils.requireAuth()) {
+            // Will redirect
+        } else if (!AppUtils.isAdmin()) {
+            AppUtils.showError('הגישה מותרת למנהלים בלבד');
+            setTimeout(() => window.location.href = '/dashboard', 2000);
+        }
+
+        // Load templates on page load
+        document.addEventListener('DOMContentLoaded', loadTemplates);
+
+        async function loadTemplates() {
+            try {
+                AppUtils.showLoader('טוען תבניות...');
+
+                // Load both templates
+                const [bmatekResult, bagdaResult] = await Promise.all([
+                    API.agreements.getTemplate('bmatek'),
+                    API.agreements.getTemplate('bagda')
+                ]);
+
+                const bmatek = bmatekResult.data;
+                const bagda = bagdaResult.data;
+
+                // Populate BMtek form
+                document.getElementById('bmatek-companyName').value = bmatek.companyName || '';
+                document.getElementById('bmatek-parentCompany').value = bmatek.parentCompany || '';
+                document.getElementById('bmatek-companyId').value = bmatek.companyId || '';
+                document.getElementById('bmatek-address').value = bmatek.address || '';
+                document.getElementById('bmatek-phone').value = bmatek.phone || '';
+                document.getElementById('bmatek-fax').value = bmatek.fax || '';
+
+                // Populate Bagda form
+                document.getElementById('bagda-companyName').value = bagda.companyName || '';
+                document.getElementById('bagda-parentCompany').value = bagda.parentCompany || '';
+                document.getElementById('bagda-companyId').value = bagda.companyId || '';
+                document.getElementById('bagda-address').value = bagda.address || '';
+                document.getElementById('bagda-phone').value = bagda.phone || '';
+                document.getElementById('bagda-fax').value = bagda.fax || '';
+
+                AppUtils.hideLoader();
+
+            } catch (error) {
+                AppUtils.hideLoader();
+                AppUtils.showError(error.message);
+            }
+        }
+
+        // Handle BMtek form submit
+        document.getElementById('bmatekForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await saveTemplate('bmatek');
+        });
+
+        // Handle Bagda form submit
+        document.getElementById('bagdaForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await saveTemplate('bagda');
+        });
+
+        async function saveTemplate(type) {
+            const prefix = type;
+            const template = {
+                companyName: document.getElementById(`${prefix}-companyName`).value.trim(),
+                parentCompany: document.getElementById(`${prefix}-parentCompany`).value.trim(),
+                companyId: document.getElementById(`${prefix}-companyId`).value.trim(),
+                address: document.getElementById(`${prefix}-address`).value.trim(),
+                phone: document.getElementById(`${prefix}-phone`).value.trim(),
+                fax: document.getElementById(`${prefix}-fax`).value.trim()
+            };
+
+            try {
+                AppUtils.showLoader('שומר...');
+
+                const response = await fetch(`/api/agreements/templates/${type}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${AppUtils.getToken()}`
+                    },
+                    body: JSON.stringify(template)
+                });
+
+                const result = await response.json();
+
+                AppUtils.hideLoader();
+
+                if (result.success) {
+                    AppUtils.showToast('התבנית נשמרה בהצלחה', 'success');
+                } else {
+                    AppUtils.showError(result.message);
+                }
+
+            } catch (error) {
+                AppUtils.hideLoader();
+                AppUtils.showError(error.message);
+            }
+        }
+    </script>
+</body>
+</html>

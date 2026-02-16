@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>התחברות - מערכת הסכמים</title>
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <div class="loader-overlay">
+        <div class="flex flex-col items-center">
+            <div class="loader"></div>
+            <p class="loader-text">טוען...</p>
+        </div>
+    </div>
+
+    <div class="login-page">
+        <div class="card login-card">
+            <div class="text-center mb-xl">
+                <img src="/assets/images/open.jpg" alt="Reshet Times" class="login-logo" onerror="this.style.display='none'">
+                <h1>מערכת הסכמים</h1>
+                <p class="text-secondary">Reshet Times / AIweon</p>
+            </div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label" for="username">שם משתמש</label>
+                    <input type="text" id="username" name="username" class="form-input"
+                           placeholder="הזן שם משתמש" required autocomplete="username">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="password">סיסמא</label>
+                    <input type="password" id="password" name="password" class="form-input"
+                           placeholder="הזן סיסמא" required autocomplete="current-password">
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg btn-block mt-lg">
+                    התחברות
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="/assets/js/main.js"></script>
+    <script>
+        // Redirect if already logged in
+        if (AppUtils.isLoggedIn()) {
+            window.location.href = '/dashboard';
+        }
+
+        // Handle login form
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+
+            if (!username || !password) {
+                AppUtils.showToast('נא למלא את כל השדות', 'warning');
+                return;
+            }
+
+            try {
+                AppUtils.showLoader('מתחבר...');
+                const result = await API.auth.login(username, password);
+
+                // Save token and user
+                localStorage.setItem('authToken', result.data.token);
+                localStorage.setItem('user', JSON.stringify(result.data.user));
+
+                AppUtils.hideLoader();
+                AppUtils.showToast('התחברות הצליחה', 'success');
+
+                // Redirect to dashboard
+                setTimeout(() => {
+                    window.location.href = '/dashboard';
+                }, 500);
+
+            } catch (error) {
+                AppUtils.hideLoader();
+                AppUtils.showError(error.message);
+            }
+        });
+
+        // Initialize admin on first load (remove in production)
+        async function initAdmin() {
+            try {
+                const result = await API.auth.init();
+                console.log('Admin initialized:', result);
+            } catch (e) {
+                // Admin already exists
+            }
+        }
+        initAdmin();
+    </script>
+</body>
+</html>

@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>לוח בקרה - מערכת הסכמים</title>
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <div class="loader-overlay">
+        <div class="flex flex-col items-center">
+            <div class="loader"></div>
+            <p class="loader-text">טוען...</p>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-content">
+                <div class="navbar-brand">
+                    <img src="/assets/images/33.jpg" alt="Logo" class="navbar-logo" onerror="this.style.display='none'">
+                    <span class="navbar-title">מערכת הסכמים</span>
+                </div>
+                <div class="navbar-menu">
+                    <a href="/dashboard" class="navbar-link active">ראשי</a>
+                    <a href="/admin" class="navbar-link admin-only" style="display:none">ניהול משתמשים</a>
+                    <a href="/logs" class="navbar-link admin-only" style="display:none">לוגים</a>
+                    <span class="text-secondary">|</span>
+                    <span id="userName" class="text-secondary"></span>
+                    <a href="#" id="logoutBtn" class="navbar-link">התנתק</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container" style="padding-top: 2rem; padding-bottom: 2rem;">
+        <!-- Stats -->
+        <div class="dashboard-stats" id="statsContainer">
+            <div class="stat-card">
+                <div class="stat-value" id="statTotal">0</div>
+                <div class="stat-label">סה"כ הסכמים</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="statDraft">0</div>
+                <div class="stat-label">טיוטות</div>
+            </div>
+            <div class="stat-card" style="cursor: pointer;" onclick="showSentAgreements()">
+                <div class="stat-value" id="statSent" style="color: var(--accent-blue)">0</div>
+                <div class="stat-label">נשלחו</div>
+            </div>
+            <div class="stat-card" style="cursor: pointer;" onclick="showSignedAgreements()">
+                <div class="stat-value" id="statSigned" style="color: var(--accent-green)">0</div>
+                <div class="stat-label">נחתמו</div>
+            </div>
+        </div>
+
+        <!-- Agreement Type Selection -->
+        <h2 class="mb-lg">יצירת הסכם חדש</h2>
+        <div class="grid grid-2 mb-xl">
+            <a href="/agreement/bmatek" class="agreement-type-card">
+                <img src="/assets/images/33.jpg" alt="במטק" style="max-height: 60px;" onerror="this.style.display='none'">
+                <h3>הסכם במטק בע"מ</h3>
+                <p>Reshet Times מקבוצת במטק</p>
+            </a>
+            <a href="/agreement/bagda" class="agreement-type-card">
+                <img src="/assets/images/33.jpg" alt="בגדא" style="max-height: 60px;" onerror="this.style.display='none'">
+                <h3>הסכם בגדא בע"מ</h3>
+                <p>RESHET TIMES – AIweon מקבוצת בגדא</p>
+            </a>
+        </div>
+
+        <!-- Search Box -->
+        <div style="margin-bottom: 20px;">
+            <input type="text"
+                   id="searchInput"
+                   class="form-input"
+                   placeholder="חיפוש לפי שם, טלפון, ח.פ, ת.ז, שם עסק..."
+                   style="width: 100%; padding: 15px; font-size: 16px; border-radius: 10px; background: var(--bg-card); border: 1px solid var(--border-color);"
+                   oninput="filterAgreements()">
+        </div>
+
+        <!-- Agreements List -->
+        <div class="card">
+            <div class="card-header flex justify-between items-center">
+                <h2 style="margin: 0;">הסכמים קיימים</h2>
+                <button class="btn btn-secondary btn-sm" onclick="loadAgreements()">
+                    רענן
+                </button>
+            </div>
+
+            <div class="table-container">
+                <table class="table" id="agreementsTable">
+                    <thead>
+                        <tr>
+                            <th>תאריך</th>
+                            <th>לקוח</th>
+                            <th>סוג</th>
+                            <th>סכום חודשי</th>
+                            <th>סטטוס</th>
+                            <th>בוצע ע"י</th>
+                            <th>פעולות</th>
+                        </tr>
+                    </thead>
+                    <tbody id="agreementsBody">
+                        <tr>
+                            <td colspan="6" class="text-center text-muted p-lg">טוען הסכמים...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script src="/assets/js/main.js"></script>
+    <script>
+        // Check auth
+        if (!AppUtils.requireAuth()) {
+            // Will redirect
+        }
+
+        // Store all agreements for filtering
+        let allAgreements = [];
+
+        // Load agreements on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAgreements();
+            // Start auto-refresh every 5 seconds
+            setInterval(silentRefresh, 5000);
+        });
+
+        // Silent refresh - update data without showing loader
+        async function silentRefresh() {
+            try {
+                const result = await API.agreements.getAll();
+                const newData = result.data;
+
+                // Check if data changed
+                if (JSON.stringify(newData) !== JSON.stringify(allAgreements)) {
+                    allAgreements = newData;
+
+                    // Update stats
+                    document.getElementById('statTotal').textContent = allAgreements.length;
+                    document.getElementById('statDraft').textContent = allAgreements.filter(a => a.status === 'draft').length;
+                    document.getElementById('statSent').textContent = allAgreements.filter(a => a.status === 'sent').length;
+                    document.getElementById('statSigned').textContent = allAgreements.filter(a => a.status === 'signed' || a.status === 'completed').length;
+
+                    // Re-apply current filter
+                    filterAgreements();
+                }
+            } catch (error) {
+                // Silent fail - don't show error for background refresh
+                console.log('Auto-refresh failed:', error);
+            }
+        }
+
+        // Filter agreements based on search input
+        function filterAgreements() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+
+            if (!searchTerm) {
+                renderAgreementsTable(allAgreements);
+                return;
+            }
+
+            const filtered = allAgreements.filter(a => {
+                const searchFields = [
+                    a.companyName || '',
+                    a.companyId || '',
+                    a.contactName || '',
+                    a.contactId || '',
+                    a.createdByName || ''
+                ].join(' ').toLowerCase();
+
+                return searchFields.includes(searchTerm);
+            });
+
+            renderAgreementsTable(filtered);
+        }
+
+        // Render agreements table
+        function renderAgreementsTable(agreements) {
+            const tbody = document.getElementById('agreementsBody');
+
+            if (agreements.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center text-muted p-lg">
+                            לא נמצאו הסכמים תואמים
+                        </td>
+                    </tr>
+                `;
+            } else {
+                tbody.innerHTML = agreements.map(agreement => `
+                    <tr>
+                        <td>${AppUtils.formatDate(agreement.createdAt)}</td>
+                        <td>
+                            <strong>${agreement.companyName}</strong><br>
+                            <span class="text-sm text-muted">${agreement.contactName}</span>
+                        </td>
+                        <td>${agreement.type === 'bmatek' ? 'במטק' : 'בגדא'}</td>
+                        <td>${AppUtils.formatCurrency(agreement.monthlyAmount)}</td>
+                        <td>${AppUtils.getStatusBadge(agreement.status)}</td>
+                        <td>
+                            <span class="text-sm">${agreement.createdByName || '-'}</span>
+                        </td>
+                        <td>
+                            <div class="flex gap-sm">
+                                ${agreement.status === 'draft' || agreement.status === 'sent' ? `
+                                    <button class="btn btn-primary btn-sm" onclick="sendAgreement('${agreement.id}', '${agreement.contactName}')">
+                                        שלח
+                                    </button>
+                                ` : ''}
+                                <button class="btn btn-secondary btn-sm" onclick="viewAgreement('${agreement.id}')">
+                                    צפה
+                                </button>
+                                ${agreement.status === 'draft' || agreement.status === 'sent' ? `
+                                    <button class="btn btn-sm" style="background: var(--accent-blue);" onclick="editAgreement('${agreement.id}')">
+                                        ערוך
+                                    </button>
+                                ` : ''}
+                                <button class="btn btn-danger btn-sm" onclick="deleteAgreement('${agreement.id}')">
+                                        מחק
+                                    </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        async function loadAgreements() {
+            try {
+                AppUtils.showLoader('טוען הסכמים...');
+                const result = await API.agreements.getAll();
+                allAgreements = result.data;
+
+                // Update stats
+                document.getElementById('statTotal').textContent = allAgreements.length;
+                document.getElementById('statDraft').textContent = allAgreements.filter(a => a.status === 'draft').length;
+                document.getElementById('statSent').textContent = allAgreements.filter(a => a.status === 'sent').length;
+                document.getElementById('statSigned').textContent = allAgreements.filter(a => a.status === 'signed' || a.status === 'completed').length;
+
+                // Apply current filter (or show all if no filter)
+                filterAgreements();
+
+                AppUtils.hideLoader();
+
+            } catch (error) {
+                AppUtils.hideLoader();
+                AppUtils.showError(error.message);
+            }
+        }
+
+        async function sendAgreement(id, clientName) {
+            await AppUtils.showSendDialog(id);
+            loadAgreements(); // Refresh list
+        }
+
+        function viewAgreement(id) {
+            window.open(`/client/${id}`, '_blank');
+        }
+
+        async function deleteAgreement(id) {
+            const confirmed = await AppUtils.showConfirm(
+                'מחיקת הסכם',
+                'האם אתה בטוח שברצונך למחוק את ההסכם?',
+                'מחק',
+                'ביטול'
+            );
+
+            if (!confirmed) return;
+
+            try {
+                AppUtils.showLoader('מוחק...');
+                await API.agreements.delete(id);
+                AppUtils.hideLoader();
+                AppUtils.showToast('ההסכם נמחק', 'success');
+                loadAgreements();
+            } catch (error) {
+                AppUtils.hideLoader();
+                AppUtils.showError(error.message);
+            }
+        }
+
+        async function showSignedAgreements() {
+            try {
+                AppUtils.showLoader('טוען הסכמים חתומים...');
+                const result = await API.agreements.getAll();
+                const signedAgreements = result.data.filter(a => a.status === 'signed' || a.status === 'completed');
+                AppUtils.hideLoader();
+
+                if (signedAgreements.length === 0) {
+                    Swal.fire({
+                        title: 'הסכמים חתומים',
+                        text: 'אין הסכמים חתומים עדיין',
+                        icon: 'info'
+                    });
+                    return;
+                }
+
+                const tableRows = signedAgreements.map(a => `
+                    <tr>
+                        <td style="padding: 8px; border-bottom: 1px solid var(--border-color);">${a.companyName}</td>
+                        <td style="padding: 8px; border-bottom: 1px solid var(--border-color);">${a.contactName}</td>
+                        <td style="padding: 8px; border-bottom: 1px solid var(--border-color);">${a.type === 'bmatek' ? 'במטק' : 'בגדא'}</td>
+                        <td style="padding: 8px; border-bottom: 1px solid var(--border-color);">${AppUtils.formatCurrency(a.monthlyAmount)}</td>
+                        <td style="padding: 8px; border-bottom: 1px solid var(--border-color);">${a.signedAt ? new Date(a.signedAt).toLocaleString('he-IL') : '-'}</td>
+                        <td style="padding: 8px; border-bottom: 1px solid var(--border-color);">${a.createdByName || '-'}</td>
+                        <td style="padding: 8px; border-bottom: 1px solid var(--border-color);">
+                            <button class="btn btn-secondary btn-sm" onclick="Swal.close(); viewAgreement('${a.id}')">צפה</button>
+                        </td>
+                    </tr>
+                `).join('');
+
+                Swal.fire({
+                    title: 'הסכמים חתומים',
+                    width: 900,
+                    html: `
+                        <div style="max-height: 60vh; overflow-y: auto;">
+                            <table style="width: 100%; border-collapse: collapse; text-align: right;">
+                                <thead>
+                                    <tr style="background: var(--bg-tertiary);">
+                                        <th style="padding: 10px; border-bottom: 2px solid var(--border-color);">לקוח</th>
+                                        <th style="padding: 10px; border-bottom: 2px solid var(--border-color);">איש קשר</th>
+                                        <th style="padding: 10px; border-bottom: 2px solid var(--border-color);">סוג</th>
+                                        <th style="padding: 10px; border-bottom: 2px solid var(--border-color);">סכום</th>
+                                        <th style="padding: 10px; border-bottom: 2px solid var(--border-color);">תאריך ושעת חתימה</th>
+                                        <th style="padding: 10px; border-bottom: 2px solid var(--border-color);">בוצע ע"י</th>
+                                        <th style="padding: 10px; border-bottom: 2px solid var(--border-color);">פעולות</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${tableRows}
+                                </tbody>
+                            </table>
+                        </div>
+                    `,
+                    showConfirmButton: true,
+                    confirmButtonText: 'חזור לראשי',
+                    showCloseButton: true
+                });
+
+            } catch (error) {
+                AppUtils.hideLoader();
+                AppUtils.showError(error.message);
+            }
+        }
+
+        async function showSentAgreements() {
+            try {
+                AppUtils.showLoader('טוען הסכמים שנשלחו...');
+                const result = await API.agreements.getAll();
+                const sentAgreements = result.data.filter(a => a.status === 'sent');
+                AppUtils.hideLoader();
+
+                if (sentAgreements.length === 0) {
+                    Swal.fire({
+                        title: 'הסכמים שנשלחו',
+                        text: 'אין הסכמים שנשלחו עדיין',
+                        icon: 'info'
+                    });
+                    return;
+                }
+
+                const tableRows = sentAgreements.map(a => `
+                    <tr>
+                        <td style="padding: 8px; border-bottom: 1px solid var(--border-color);">${a.companyName}</td>
+                        <td style="padding: 8px; border-bottom: 1px solid var(--border-color);">${a.contactName}</td>
+                        <td style="padding: 8px; border-bottom: 1px solid var(--border-color);">${a.type === 'bmatek' ? 'במטק' : 'בגדא'}</td>
+                        <td style="padding: 8px; border-bottom: 1px solid var(--border-color);">${AppUtils.formatCurrency(a.monthlyAmount)}</td>
+                        <td style="padding: 8px; border-bottom: 1px solid var(--border-color);">${a.sentAt ? new Date(a.sentAt).toLocaleString('he-IL') : '-'}</td>
+                        <td style="padding: 8px; border-bottom: 1px solid var(--border-color);">${a.createdByName || '-'}</td>
+                        <td style="padding: 8px; border-bottom: 1px solid var(--border-color);">
+                            <button class="btn btn-secondary btn-sm" onclick="Swal.close(); viewAgreement('${a.id}')">צפה</button>
+                        </td>
+                    </tr>
+                `).join('');
+
+                Swal.fire({
+                    title: 'הסכמים שנשלחו',
+                    width: 900,
+                    html: `
+                        <div style="max-height: 60vh; overflow-y: auto;">
+                            <table style="width: 100%; border-collapse: collapse; text-align: right;">
+                                <thead>
+                                    <tr style="background: var(--bg-tertiary);">
+                                        <th style="padding: 10px; border-bottom: 2px solid var(--border-color);">לקוח</th>
+                                        <th style="padding: 10px; border-bottom: 2px solid var(--border-color);">איש קשר</th>
+                                        <th style="padding: 10px; border-bottom: 2px solid var(--border-color);">סוג</th>
+                                        <th style="padding: 10px; border-bottom: 2px solid var(--border-color);">סכום</th>
+                                        <th style="padding: 10px; border-bottom: 2px solid var(--border-color);">תאריך ושעת שליחה</th>
+                                        <th style="padding: 10px; border-bottom: 2px solid var(--border-color);">בוצע ע"י</th>
+                                        <th style="padding: 10px; border-bottom: 2px solid var(--border-color);">פעולות</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${tableRows}
+                                </tbody>
+                            </table>
+                        </div>
+                    `,
+                    showConfirmButton: true,
+                    confirmButtonText: 'חזור לראשי',
+                    showCloseButton: true
+                });
+
+            } catch (error) {
+                AppUtils.hideLoader();
+                AppUtils.showError(error.message);
+            }
+        }
+
+        async function editAgreement(id) {
+            try {
+                AppUtils.showLoader('טוען הסכם...');
+                const result = await API.agreements.getById(id);
+                const agreement = result.data;
+                AppUtils.hideLoader();
+
+                const { value: formData } = await Swal.fire({
+                    title: 'עריכת הסכם',
+                    width: 800,
+                    html: `
+                        <div style="text-align: right; max-height: 60vh; overflow-y: auto; padding: 10px;">
+                            <div class="grid grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div class="form-group">
+                                    <label class="form-label">שם החברה / הלקוח</label>
+                                    <input type="text" id="edit-companyName" class="swal2-input" value="${agreement.companyName || ''}" style="width: 100%; margin: 0;">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">ח.פ / ע.מ</label>
+                                    <input type="text" id="edit-companyId" class="swal2-input" value="${agreement.companyId || ''}" style="width: 100%; margin: 0;">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">שם איש קשר</label>
+                                    <input type="text" id="edit-contactName" class="swal2-input" value="${agreement.contactName || ''}" style="width: 100%; margin: 0;">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">ת.ז איש קשר</label>
+                                    <input type="text" id="edit-contactId" class="swal2-input" value="${agreement.contactId || ''}" style="width: 100%; margin: 0;">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">סכום חודשי (₪)</label>
+                                    <input type="number" id="edit-monthlyAmount" class="swal2-input" value="${agreement.monthlyAmount || ''}" style="width: 100%; margin: 0;">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">יום תשלום בחודש</label>
+                                    <input type="number" id="edit-paymentDay" class="swal2-input" min="1" max="31" value="${agreement.paymentDay || 1}" style="width: 100%; margin: 0;">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">תאריך תחילה</label>
+                                    <input type="date" id="edit-effectiveDate" class="swal2-input" value="${agreement.effectiveDate || ''}" style="width: 100%; margin: 0;">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">משך ההסכם (חודשים)</label>
+                                    <input type="number" id="edit-duration" class="swal2-input" value="${agreement.duration || 12}" style="width: 100%; margin: 0;">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">תאריך ההסכם</label>
+                                    <input type="date" id="edit-agreementDate" class="swal2-input" value="${agreement.agreementDate || ''}" style="width: 100%; margin: 0;">
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-top: 1rem;">
+                                <label class="form-label">הערות</label>
+                                <textarea id="edit-notes" class="swal2-textarea" style="width: 100%; min-height: 80px; margin: 0;" placeholder="הערות נוספות להסכם...">${agreement.notes || ''}</textarea>
+                            </div>
+                            <hr style="margin: 1rem 0; border-color: var(--border-color);">
+                            <h4 style="margin-bottom: 1rem;">שירותים</h4>
+                            <div class="form-group">
+                                <label class="form-label">סעיף 2.1 - שירותי פרסום</label>
+                                <textarea id="edit-section21" class="swal2-textarea" style="width: 100%; min-height: 80px; margin: 0;">${agreement.selectedServices?.section21 || ''}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">סעיף 2.2 - שירותים נוספים</label>
+                                <textarea id="edit-section22" class="swal2-textarea" style="width: 100%; min-height: 80px; margin: 0;">${agreement.selectedServices?.section22 || ''}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">סעיף 2.3 - שירותים מיוחדים</label>
+                                <textarea id="edit-section23" class="swal2-textarea" style="width: 100%; min-height: 80px; margin: 0;">${agreement.selectedServices?.section23 || ''}</textarea>
+                            </div>
+                        </div>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: 'שמור שינויים',
+                    cancelButtonText: 'ביטול',
+                    preConfirm: () => {
+                        return {
+                            companyName: document.getElementById('edit-companyName').value,
+                            companyId: document.getElementById('edit-companyId').value,
+                            contactName: document.getElementById('edit-contactName').value,
+                            contactId: document.getElementById('edit-contactId').value,
+                            monthlyAmount: Number(document.getElementById('edit-monthlyAmount').value),
+                            paymentDay: Number(document.getElementById('edit-paymentDay').value),
+                            effectiveDate: document.getElementById('edit-effectiveDate').value,
+                            duration: Number(document.getElementById('edit-duration').value),
+                            agreementDate: document.getElementById('edit-agreementDate').value,
+                            notes: document.getElementById('edit-notes').value,
+                            selectedServices: {
+                                section21: document.getElementById('edit-section21').value,
+                                section22: document.getElementById('edit-section22').value,
+                                section23: document.getElementById('edit-section23').value
+                            }
+                        };
+                    }
+                });
+
+                if (!formData) return;
+
+                AppUtils.showLoader('שומר שינויים...');
+                await API.agreements.update(id, formData);
+                AppUtils.hideLoader();
+                AppUtils.showToast('ההסכם עודכן בהצלחה', 'success');
+                loadAgreements();
+
+            } catch (error) {
+                AppUtils.hideLoader();
+                AppUtils.showError(error.message);
+            }
+        }
+    </script>
+</body>
+</html>
