@@ -18,10 +18,10 @@ router.post('/login', async (req, res) => {
             });
         }
 
-        const user = Users.getByUsername(username);
+        const user = await Users.getByUsername(username);
 
         if (!user) {
-            createLog('AUTH', null, 'Login failed - user not found', { username }, req);
+            await createLog('AUTH', null, 'Login failed - user not found', { username }, req);
             return res.status(401).json({
                 success: false,
                 message: 'שם משתמש או סיסמא שגויים'
@@ -31,7 +31,7 @@ router.post('/login', async (req, res) => {
         const isValidPassword = await bcrypt.compare(password, user.password);
 
         if (!isValidPassword) {
-            createLog('AUTH', user.id, 'Login failed - wrong password', {}, req);
+            await createLog('AUTH', user.id, 'Login failed - wrong password', {}, req);
             return res.status(401).json({
                 success: false,
                 message: 'שם משתמש או סיסמא שגויים'
@@ -40,7 +40,7 @@ router.post('/login', async (req, res) => {
 
         const token = generateToken(user);
 
-        createLog('AUTH', user.id, 'Login successful', {}, req);
+        await createLog('AUTH', user.id, 'Login successful', {}, req);
 
         res.json({
             success: true,
@@ -58,7 +58,7 @@ router.post('/login', async (req, res) => {
 
     } catch (error) {
         console.error('Login error:', error);
-        createLog('ERROR', null, 'Login error', { error: error.message }, req);
+        await createLog('ERROR', null, 'Login error', { error: error.message }, req);
         res.status(500).json({
             success: false,
             message: 'שגיאה בהתחברות'
@@ -81,8 +81,8 @@ router.get('/me', verifyToken, (req, res) => {
 });
 
 // Logout (client-side token removal, but log it)
-router.post('/logout', verifyToken, (req, res) => {
-    createLog('AUTH', req.user.id, 'Logout', {}, req);
+router.post('/logout', verifyToken, async (req, res) => {
+    await createLog('AUTH', req.user.id, 'Logout', {}, req);
     res.json({
         success: true,
         message: 'התנתקות הצליחה'
@@ -101,11 +101,11 @@ router.post('/change-password', verifyToken, async (req, res) => {
             });
         }
 
-        const user = Users.getById(req.user.id);
+        const user = await Users.getById(req.user.id);
         const isValidPassword = await bcrypt.compare(currentPassword, user.password);
 
         if (!isValidPassword) {
-            createLog('AUTH', req.user.id, 'Password change failed - wrong current password', {}, req);
+            await createLog('AUTH', req.user.id, 'Password change failed - wrong current password', {}, req);
             return res.status(401).json({
                 success: false,
                 message: 'הסיסמא הנוכחית שגויה'
@@ -113,9 +113,9 @@ router.post('/change-password', verifyToken, async (req, res) => {
         }
 
         const hashedPassword = await bcrypt.hash(newPassword, 10);
-        Users.update(req.user.id, { password: hashedPassword });
+        await Users.update(req.user.id, { password: hashedPassword });
 
-        createLog('AUTH', req.user.id, 'Password changed successfully', {}, req);
+        await createLog('AUTH', req.user.id, 'Password changed successfully', {}, req);
 
         res.json({
             success: true,
@@ -124,7 +124,7 @@ router.post('/change-password', verifyToken, async (req, res) => {
 
     } catch (error) {
         console.error('Change password error:', error);
-        createLog('ERROR', req.user.id, 'Password change error', { error: error.message }, req);
+        await createLog('ERROR', req.user.id, 'Password change error', { error: error.message }, req);
         res.status(500).json({
             success: false,
             message: 'שגיאה בשינוי סיסמא'
@@ -135,7 +135,7 @@ router.post('/change-password', verifyToken, async (req, res) => {
 // Initialize admin user (run once)
 router.post('/init', async (req, res) => {
     try {
-        const existingAdmin = Users.getByUsername('admin');
+        const existingAdmin = await Users.getByUsername('admin');
 
         if (existingAdmin) {
             return res.status(400).json({
@@ -157,9 +157,9 @@ router.post('/init', async (req, res) => {
             updatedAt: new Date().toISOString()
         };
 
-        Users.create(admin);
+        await Users.create(admin);
 
-        createLog('AUTH', admin.id, 'Admin user initialized', {}, req);
+        await createLog('AUTH', admin.id, 'Admin user initialized', {}, req);
 
         res.json({
             success: true,

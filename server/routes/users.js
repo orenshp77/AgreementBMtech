@@ -7,16 +7,16 @@ const { verifyToken, isAdmin, createLog } = require('../middleware/auth');
 const router = express.Router();
 
 // Get all users (admin only)
-router.get('/', verifyToken, isAdmin, (req, res) => {
+router.get('/', verifyToken, isAdmin, async (req, res) => {
     try {
-        const users = Users.getAll();
+        const users = await Users.getAll();
         res.json({
             success: true,
             data: users
         });
     } catch (error) {
         console.error('Get users error:', error);
-        createLog('ERROR', req.user.id, 'Error fetching users', { error: error.message }, req);
+        await createLog('ERROR', req.user.id, 'Error fetching users', { error: error.message }, req);
         res.status(500).json({
             success: false,
             message: 'שגיאה בטעינת משתמשים'
@@ -25,9 +25,9 @@ router.get('/', verifyToken, isAdmin, (req, res) => {
 });
 
 // Get single user
-router.get('/:id', verifyToken, (req, res) => {
+router.get('/:id', verifyToken, async (req, res) => {
     try {
-        const user = Users.getById(req.params.id);
+        const user = await Users.getById(req.params.id);
 
         if (!user) {
             return res.status(404).json({
@@ -78,7 +78,7 @@ router.post('/', verifyToken, isAdmin, async (req, res) => {
         }
 
         // Check if username exists
-        const existingUser = Users.getByUsername(username);
+        const existingUser = await Users.getByUsername(username);
         if (existingUser) {
             return res.status(400).json({
                 success: false,
@@ -99,9 +99,9 @@ router.post('/', verifyToken, isAdmin, async (req, res) => {
             updatedAt: new Date().toISOString()
         };
 
-        const createdUser = Users.create(newUser);
+        const createdUser = await Users.create(newUser);
 
-        createLog('INFO', req.user.id, 'User created', { newUserId: newUser.id, username }, req);
+        await createLog('INFO', req.user.id, 'User created', { newUserId: newUser.id, username }, req);
 
         res.status(201).json({
             success: true,
@@ -111,7 +111,7 @@ router.post('/', verifyToken, isAdmin, async (req, res) => {
 
     } catch (error) {
         console.error('Create user error:', error);
-        createLog('ERROR', req.user.id, 'Error creating user', { error: error.message }, req);
+        await createLog('ERROR', req.user.id, 'Error creating user', { error: error.message }, req);
         res.status(500).json({
             success: false,
             message: 'שגיאה ביצירת משתמש'
@@ -141,7 +141,7 @@ router.put('/:id', verifyToken, async (req, res) => {
             });
         }
 
-        const existingUser = Users.getById(userId);
+        const existingUser = await Users.getById(userId);
         if (!existingUser) {
             return res.status(404).json({
                 success: false,
@@ -151,7 +151,7 @@ router.put('/:id', verifyToken, async (req, res) => {
 
         // Check if new username is taken by another user
         if (username && username !== existingUser.username) {
-            const usernameExists = Users.getByUsername(username);
+            const usernameExists = await Users.getByUsername(username);
             if (usernameExists) {
                 return res.status(400).json({
                     success: false,
@@ -167,9 +167,9 @@ router.put('/:id', verifyToken, async (req, res) => {
         if (role && req.user.role === 'admin') updates.role = role;
         if (password) updates.password = await bcrypt.hash(password, 10);
 
-        const updatedUser = Users.update(userId, updates);
+        const updatedUser = await Users.update(userId, updates);
 
-        createLog('INFO', req.user.id, 'User updated', { updatedUserId: userId }, req);
+        await createLog('INFO', req.user.id, 'User updated', { updatedUserId: userId }, req);
 
         res.json({
             success: true,
@@ -179,7 +179,7 @@ router.put('/:id', verifyToken, async (req, res) => {
 
     } catch (error) {
         console.error('Update user error:', error);
-        createLog('ERROR', req.user.id, 'Error updating user', { error: error.message }, req);
+        await createLog('ERROR', req.user.id, 'Error updating user', { error: error.message }, req);
         res.status(500).json({
             success: false,
             message: 'שגיאה בעדכון משתמש'
@@ -188,7 +188,7 @@ router.put('/:id', verifyToken, async (req, res) => {
 });
 
 // Delete user (admin only)
-router.delete('/:id', verifyToken, isAdmin, (req, res) => {
+router.delete('/:id', verifyToken, isAdmin, async (req, res) => {
     try {
         const userId = req.params.id;
 
@@ -200,7 +200,7 @@ router.delete('/:id', verifyToken, isAdmin, (req, res) => {
             });
         }
 
-        const user = Users.getById(userId);
+        const user = await Users.getById(userId);
         if (!user) {
             return res.status(404).json({
                 success: false,
@@ -208,9 +208,9 @@ router.delete('/:id', verifyToken, isAdmin, (req, res) => {
             });
         }
 
-        Users.delete(userId);
+        await Users.delete(userId);
 
-        createLog('INFO', req.user.id, 'User deleted', { deletedUserId: userId, username: user.username }, req);
+        await createLog('INFO', req.user.id, 'User deleted', { deletedUserId: userId, username: user.username }, req);
 
         res.json({
             success: true,
@@ -219,7 +219,7 @@ router.delete('/:id', verifyToken, isAdmin, (req, res) => {
 
     } catch (error) {
         console.error('Delete user error:', error);
-        createLog('ERROR', req.user.id, 'Error deleting user', { error: error.message }, req);
+        await createLog('ERROR', req.user.id, 'Error deleting user', { error: error.message }, req);
         res.status(500).json({
             success: false,
             message: 'שגיאה במחיקת משתמש'

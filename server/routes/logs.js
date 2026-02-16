@@ -1,11 +1,11 @@
 const express = require('express');
-const { Logs } = require('../database');
+const { Logs, pool } = require('../database');
 const { verifyToken, isAdmin } = require('../middleware/auth');
 
 const router = express.Router();
 
 // Get all logs (admin only)
-router.get('/', verifyToken, isAdmin, (req, res) => {
+router.get('/', verifyToken, isAdmin, async (req, res) => {
     try {
         const { type, userId, from, to, limit = 100 } = req.query;
 
@@ -15,7 +15,7 @@ router.get('/', verifyToken, isAdmin, (req, res) => {
         if (from) filters.from = from;
         if (to) filters.to = to;
 
-        let logs = Logs.getAll(filters);
+        let logs = await Logs.getAll(filters);
 
         // Apply limit
         logs = logs.slice(0, Number(limit));
@@ -35,9 +35,9 @@ router.get('/', verifyToken, isAdmin, (req, res) => {
 });
 
 // Get log statistics
-router.get('/stats', verifyToken, isAdmin, (req, res) => {
+router.get('/stats', verifyToken, isAdmin, async (req, res) => {
     try {
-        const logs = Logs.getAll();
+        const logs = await Logs.getAll();
 
         const stats = {
             total: logs.length,
@@ -84,7 +84,7 @@ router.get('/stats', verifyToken, isAdmin, (req, res) => {
 });
 
 // Export logs as CSV
-router.get('/export', verifyToken, isAdmin, (req, res) => {
+router.get('/export', verifyToken, isAdmin, async (req, res) => {
     try {
         const { type, from, to } = req.query;
 
@@ -93,7 +93,7 @@ router.get('/export', verifyToken, isAdmin, (req, res) => {
         if (from) filters.from = from;
         if (to) filters.to = to;
 
-        const logs = Logs.getAll(filters);
+        const logs = await Logs.getAll(filters);
 
         // Create CSV
         const headers = ['ID', 'Timestamp', 'Type', 'User ID', 'Action', 'Platform', 'IP'];
@@ -128,7 +128,7 @@ router.get('/export', verifyToken, isAdmin, (req, res) => {
 });
 
 // Clear old logs (admin only)
-router.delete('/clear', verifyToken, isAdmin, (req, res) => {
+router.delete('/clear', verifyToken, isAdmin, async (req, res) => {
     try {
         const { before } = req.query;
 
@@ -139,21 +139,17 @@ router.delete('/clear', verifyToken, isAdmin, (req, res) => {
             });
         }
 
-        const logs = Logs.getAll();
         const beforeDate = new Date(before);
-        const logsToKeep = logs.filter(log => new Date(log.timestamp) >= beforeDate);
 
-        // Manually update the database
-        const db = require('../database');
-        const data = db.readDB();
-        data.logs = logsToKeep;
-        db.writeDB(data);
-
-        const deletedCount = logs.length - logsToKeep.length;
+        // Delete logs older than the specified date
+        const result = await pool.query(
+            'DELETE FROM logs WHERE timestamp < $1',
+            [beforeDate.toISOString()]
+        );
 
         res.json({
             success: true,
-            message: `${deletedCount} לוגים נמחקו בהצלחה`
+            message: `${result.rowCount} לוגים נמחקו בהצלחה`
         });
 
     } catch (error) {

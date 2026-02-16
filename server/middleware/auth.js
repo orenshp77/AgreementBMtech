@@ -5,7 +5,7 @@ const { v4: uuidv4 } = require('uuid');
 const JWT_SECRET = process.env.JWT_SECRET || 'default-secret-change-in-production';
 
 // Create log entry
-function createLog(type, userId, action, details = {}, req = null) {
+async function createLog(type, userId, action, details = {}, req = null) {
     const log = {
         id: uuidv4(),
         timestamp: new Date().toISOString(),
@@ -16,16 +16,16 @@ function createLog(type, userId, action, details = {}, req = null) {
         platform: req?.headers['user-agent'] || 'unknown',
         ip: req?.ip || req?.connection?.remoteAddress || 'unknown'
     };
-    Logs.create(log);
+    await Logs.create(log);
     return log;
 }
 
 // Verify JWT token
-function verifyToken(req, res, next) {
+async function verifyToken(req, res, next) {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        createLog('AUTH', null, 'Unauthorized access attempt', { path: req.path }, req);
+        await createLog('AUTH', null, 'Unauthorized access attempt', { path: req.path }, req);
         return res.status(401).json({
             success: false,
             message: 'נדרשת התחברות למערכת'
@@ -36,10 +36,10 @@ function verifyToken(req, res, next) {
 
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
-        const user = Users.getById(decoded.id);
+        const user = await Users.getById(decoded.id);
 
         if (!user) {
-            createLog('AUTH', decoded.id, 'Token for non-existent user', {}, req);
+            await createLog('AUTH', decoded.id, 'Token for non-existent user', {}, req);
             return res.status(401).json({
                 success: false,
                 message: 'משתמש לא נמצא'
@@ -49,7 +49,7 @@ function verifyToken(req, res, next) {
         req.user = user;
         next();
     } catch (error) {
-        createLog('AUTH', null, 'Invalid token', { error: error.message }, req);
+        await createLog('AUTH', null, 'Invalid token', { error: error.message }, req);
         return res.status(401).json({
             success: false,
             message: 'טוקן לא תקין'
@@ -58,9 +58,9 @@ function verifyToken(req, res, next) {
 }
 
 // Check if user is admin
-function isAdmin(req, res, next) {
+async function isAdmin(req, res, next) {
     if (req.user.role !== 'admin') {
-        createLog('AUTH', req.user.id, 'Admin access denied', { path: req.path }, req);
+        await createLog('AUTH', req.user.id, 'Admin access denied', { path: req.path }, req);
         return res.status(403).json({
             success: false,
             message: 'הגישה מותרת למנהלים בלבד'

@@ -8,10 +8,10 @@ const { uploadPdfFromBase64 } = require('../services/driveService');
 const router = express.Router();
 
 // Get all agreements (all users see all agreements)
-router.get('/', verifyToken, (req, res) => {
+router.get('/', verifyToken, async (req, res) => {
     try {
         // All users can see all agreements
-        const agreements = Agreements.getAll();
+        const agreements = await Agreements.getAll();
 
         res.json({
             success: true,
@@ -19,7 +19,7 @@ router.get('/', verifyToken, (req, res) => {
         });
     } catch (error) {
         console.error('Get agreements error:', error);
-        createLog('ERROR', req.user.id, 'Error fetching agreements', { error: error.message }, req);
+        await createLog('ERROR', req.user.id, 'Error fetching agreements', { error: error.message }, req);
         res.status(500).json({
             success: false,
             message: 'שגיאה בטעינת הסכמים'
@@ -28,9 +28,9 @@ router.get('/', verifyToken, (req, res) => {
 });
 
 // Get single agreement (for viewing/signing)
-router.get('/:id', (req, res) => {
+router.get('/:id', async (req, res) => {
     try {
-        const agreement = Agreements.getById(req.params.id);
+        const agreement = await Agreements.getById(req.params.id);
 
         if (!agreement) {
             return res.status(404).json({
@@ -53,7 +53,7 @@ router.get('/:id', (req, res) => {
 });
 
 // Create new agreement
-router.post('/', verifyToken, (req, res) => {
+router.post('/', verifyToken, async (req, res) => {
     try {
         const {
             type, // 'bmatek' or 'bagda'
@@ -93,7 +93,7 @@ router.post('/', verifyToken, (req, res) => {
         }
 
         // Get company template
-        const template = Templates.get(type);
+        const template = await Templates.get(type);
 
         const newAgreement = {
             id: uuidv4(),
@@ -138,9 +138,9 @@ router.post('/', verifyToken, (req, res) => {
             updatedAt: new Date().toISOString()
         };
 
-        const createdAgreement = Agreements.create(newAgreement);
+        const createdAgreement = await Agreements.create(newAgreement);
 
-        createLog('INFO', req.user.id, 'Agreement created', {
+        await createLog('INFO', req.user.id, 'Agreement created', {
             agreementId: newAgreement.id,
             type,
             clientName: companyName
@@ -160,7 +160,7 @@ router.post('/', verifyToken, (req, res) => {
 
     } catch (error) {
         console.error('Create agreement error:', error);
-        createLog('ERROR', req.user.id, 'Error creating agreement', { error: error.message }, req);
+        await createLog('ERROR', req.user.id, 'Error creating agreement', { error: error.message }, req);
         res.status(500).json({
             success: false,
             message: 'שגיאה ביצירת הסכם'
@@ -169,10 +169,10 @@ router.post('/', verifyToken, (req, res) => {
 });
 
 // Update agreement
-router.put('/:id', verifyToken, (req, res) => {
+router.put('/:id', verifyToken, async (req, res) => {
     try {
         const agreementId = req.params.id;
-        const agreement = Agreements.getById(agreementId);
+        const agreement = await Agreements.getById(agreementId);
 
         if (!agreement) {
             return res.status(404).json({
@@ -203,9 +203,9 @@ router.put('/:id', verifyToken, (req, res) => {
         delete updates.createdAt;
         delete updates.clientSignature;
 
-        const updatedAgreement = Agreements.update(agreementId, updates);
+        const updatedAgreement = await Agreements.update(agreementId, updates);
 
-        createLog('INFO', req.user.id, 'Agreement updated', { agreementId }, req);
+        await createLog('INFO', req.user.id, 'Agreement updated', { agreementId }, req);
 
         // Emit real-time update
         const io = req.app.get('io');
@@ -221,7 +221,7 @@ router.put('/:id', verifyToken, (req, res) => {
 
     } catch (error) {
         console.error('Update agreement error:', error);
-        createLog('ERROR', req.user.id, 'Error updating agreement', { error: error.message }, req);
+        await createLog('ERROR', req.user.id, 'Error updating agreement', { error: error.message }, req);
         res.status(500).json({
             success: false,
             message: 'שגיאה בעדכון הסכם'
@@ -235,7 +235,7 @@ router.post('/:id/send', verifyToken, async (req, res) => {
         const { via, recipient } = req.body; // via: 'whatsapp' | 'sms' | 'email'
         const agreementId = req.params.id;
 
-        const agreement = Agreements.getById(agreementId);
+        const agreement = await Agreements.getById(agreementId);
 
         if (!agreement) {
             return res.status(404).json({
@@ -269,14 +269,14 @@ router.post('/:id/send', verifyToken, async (req, res) => {
         }
 
         // Update agreement status
-        Agreements.update(agreementId, {
+        await Agreements.update(agreementId, {
             status: 'sent',
             sentAt: new Date().toISOString(),
             sentVia: via,
             sentTo: recipient
         });
 
-        createLog('SEND', req.user.id, `Agreement sent via ${via}`, {
+        await createLog('SEND', req.user.id, `Agreement sent via ${via}`, {
             agreementId,
             via,
             recipient
@@ -294,7 +294,7 @@ router.post('/:id/send', verifyToken, async (req, res) => {
 
     } catch (error) {
         console.error('Send agreement error:', error);
-        createLog('ERROR', req.user.id, 'Error sending agreement', { error: error.message }, req);
+        await createLog('ERROR', req.user.id, 'Error sending agreement', { error: error.message }, req);
         res.status(500).json({
             success: false,
             message: 'שגיאה בשליחת הסכם'
@@ -315,7 +315,7 @@ router.post('/:id/sign', async (req, res) => {
             });
         }
 
-        const agreement = Agreements.getById(agreementId);
+        const agreement = await Agreements.getById(agreementId);
 
         if (!agreement) {
             return res.status(404).json({
@@ -332,13 +332,13 @@ router.post('/:id/sign', async (req, res) => {
         }
 
         // Update agreement with signature
-        const updatedAgreement = Agreements.update(agreementId, {
+        const updatedAgreement = await Agreements.update(agreementId, {
             status: 'signed',
             clientSignature: signature,
             signedAt: new Date().toISOString()
         });
 
-        createLog('SIGN', null, 'Agreement signed by client', {
+        await createLog('SIGN', null, 'Agreement signed by client', {
             agreementId,
             clientName: agreement.companyName
         }, req);
@@ -365,7 +365,7 @@ router.post('/:id/sign', async (req, res) => {
 
     } catch (error) {
         console.error('Sign agreement error:', error);
-        createLog('ERROR', null, 'Error signing agreement', { error: error.message }, req);
+        await createLog('ERROR', null, 'Error signing agreement', { error: error.message }, req);
         res.status(500).json({
             success: false,
             message: 'שגיאה בחתימת הסכם'
@@ -374,10 +374,10 @@ router.post('/:id/sign', async (req, res) => {
 });
 
 // Delete agreement (admin can delete all, users can delete only their own)
-router.delete('/:id', verifyToken, (req, res) => {
+router.delete('/:id', verifyToken, async (req, res) => {
     try {
         const agreementId = req.params.id;
-        const agreement = Agreements.getById(agreementId);
+        const agreement = await Agreements.getById(agreementId);
 
         if (!agreement) {
             return res.status(404).json({
@@ -394,9 +394,9 @@ router.delete('/:id', verifyToken, (req, res) => {
             });
         }
 
-        Agreements.delete(agreementId);
+        await Agreements.delete(agreementId);
 
-        createLog('INFO', req.user.id, 'Agreement deleted', {
+        await createLog('INFO', req.user.id, 'Agreement deleted', {
             agreementId,
             clientName: agreement.companyName
         }, req);
@@ -414,7 +414,7 @@ router.delete('/:id', verifyToken, (req, res) => {
 
     } catch (error) {
         console.error('Delete agreement error:', error);
-        createLog('ERROR', req.user.id, 'Error deleting agreement', { error: error.message }, req);
+        await createLog('ERROR', req.user.id, 'Error deleting agreement', { error: error.message }, req);
         res.status(500).json({
             success: false,
             message: 'שגיאה במחיקת הסכם'
@@ -423,9 +423,9 @@ router.delete('/:id', verifyToken, (req, res) => {
 });
 
 // Get templates
-router.get('/templates/:type', verifyToken, (req, res) => {
+router.get('/templates/:type', verifyToken, async (req, res) => {
     try {
-        const template = Templates.get(req.params.type);
+        const template = await Templates.get(req.params.type);
 
         if (!template) {
             return res.status(404).json({
@@ -460,7 +460,7 @@ router.post('/:id/backup-pdf', async (req, res) => {
             });
         }
 
-        const agreement = Agreements.getById(agreementId);
+        const agreement = await Agreements.getById(agreementId);
 
         if (!agreement) {
             return res.status(404).json({
@@ -480,7 +480,7 @@ router.post('/:id/backup-pdf', async (req, res) => {
         });
 
         // Update agreement with backup info
-        Agreements.update(agreementId, {
+        await Agreements.update(agreementId, {
             driveBackup: {
                 fileId: result.fileId,
                 fileName: result.fileName,
@@ -489,7 +489,7 @@ router.post('/:id/backup-pdf', async (req, res) => {
             }
         });
 
-        createLog('BACKUP', null, 'Agreement PDF backed up to Drive', {
+        await createLog('BACKUP', null, 'Agreement PDF backed up to Drive', {
             agreementId,
             fileId: result.fileId,
             fileName: result.fileName
@@ -503,7 +503,7 @@ router.post('/:id/backup-pdf', async (req, res) => {
 
     } catch (error) {
         console.error('Backup PDF error:', error);
-        createLog('ERROR', null, 'Error backing up PDF', { error: error.message }, req);
+        await createLog('ERROR', null, 'Error backing up PDF', { error: error.message }, req);
         res.status(500).json({
             success: false,
             message: 'שגיאה בגיבוי ה-PDF: ' + error.message
@@ -512,14 +512,14 @@ router.post('/:id/backup-pdf', async (req, res) => {
 });
 
 // Update template (admin only)
-router.put('/templates/:type', verifyToken, isAdmin, (req, res) => {
+router.put('/templates/:type', verifyToken, isAdmin, async (req, res) => {
     try {
         const type = req.params.type;
         const updates = req.body;
 
-        const updatedTemplate = Templates.update(type, updates);
+        const updatedTemplate = await Templates.update(type, updates);
 
-        createLog('INFO', req.user.id, 'Template updated', { type }, req);
+        await createLog('INFO', req.user.id, 'Template updated', { type }, req);
 
         res.json({
             success: true,
@@ -528,7 +528,7 @@ router.put('/templates/:type', verifyToken, isAdmin, (req, res) => {
         });
     } catch (error) {
         console.error('Update template error:', error);
-        createLog('ERROR', req.user.id, 'Error updating template', { error: error.message }, req);
+        await createLog('ERROR', req.user.id, 'Error updating template', { error: error.message }, req);
         res.status(500).json({
             success: false,
             message: 'שגיאה בעדכון תבנית'
