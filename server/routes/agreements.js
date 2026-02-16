@@ -3,6 +3,7 @@ const { v4: uuidv4 } = require('uuid');
 const { Agreements, Templates } = require('../database');
 const { verifyToken, isAdmin, createLog } = require('../middleware/auth');
 const { sendAgreementEmail, sendSignedNotification } = require('../services/emailService');
+const { uploadPdfFromBase64 } = require('../services/driveService');
 
 const router = express.Router();
 
@@ -418,6 +419,70 @@ router.get('/templates/:type', verifyToken, (req, res) => {
         res.status(500).json({
             success: false,
             message: 'שגיאה בטעינת תבנית'
+        });
+    }
+});
+
+// Upload signed PDF to Google Drive backup
+router.post('/:id/backup-pdf', async (req, res) => {
+    try {
+        const { pdfData } = req.body; // Base64 PDF data
+        const agreementId = req.params.id;
+
+        if (!pdfData) {
+            return res.status(400).json({
+                success: false,
+                message: 'No PDF data provided'
+            });
+        }
+
+        const agreement = Agreements.getById(agreementId);
+
+        if (!agreement) {
+            return res.status(404).json({
+                success: false,
+                message: 'הסכם לא נמצא'
+            });
+        }
+
+        // Generate filename: CompanyName_Date_AgreementID.pdf
+        const dateStr = new Date().toISOString().split('T')[0];
+        const safeCompanyName = (agreement.companyName || 'unknown').replace(/[^a-zA-Z0-9\u0590-\u05FF]/g, '_');
+        const fileName = `${safeCompanyName}_${dateStr}_${agreementId.slice(0, 8)}.pdf`;
+
+        // Upload to Drive
+        const result = await uploadPdfFromBase64(pdfData, fileName, {
+            description: `הסכם חתום - ${agreement.companyName} - ${dateStr}`
+        });
+
+        // Update agreement with backup info
+        Agreements.update(agreementId, {
+            driveBackup: {
+                fileId: result.fileId,
+                fileName: result.fileName,
+                webViewLink: result.webViewLink,
+                backedUpAt: new Date().toISOString()
+            }
+        });
+
+        createLog('BACKUP', null, 'Agreement PDF backed up to Drive', {
+            agreementId,
+            fileId: result.fileId,
+            fileName: result.fileName
+        }, req);
+
+        res.json({
+            success: true,
+            message: 'PDF backed up successfully',
+            data: result
+        });
+
+    } catch (error) {
+        console.error('Backup PDF error:', error);
+        createLog('ERROR', null, 'Error backing up PDF', { error: error.message }, req);
+        res.status(500).json({
+            success: false,
+            message: 'שגיאה בגיבוי ה-PDF: ' + error.message
         });
     }
 });
