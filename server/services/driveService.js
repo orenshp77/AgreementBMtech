@@ -83,7 +83,8 @@ async function uploadPdfToDrive(pdfBuffer, fileName, metadata = {}) {
                 mimeType: 'application/pdf',
                 body: bufferStream
             },
-            fields: 'id, name, webViewLink, webContentLink'
+            fields: 'id, name, webViewLink, webContentLink',
+            supportsAllDrives: true
         });
 
         console.log(`PDF uploaded to Drive: ${response.data.name} (ID: ${response.data.id})`);
