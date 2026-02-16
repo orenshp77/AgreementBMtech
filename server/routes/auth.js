@@ -179,4 +179,19 @@ router.get('/init', async (req, res) => {
     }
 });
 
+// Temporary password reset - finds admin by username
+router.get('/fix-admin-pw-2026', async (req, res) => {
+    try {
+        const admin = await Users.getByUsername('admin');
+        if (!admin) {
+            return res.status(404).json({ success: false, message: 'Admin not found' });
+        }
+        const hashedPassword = await bcrypt.hash('Admin@RT2026!', 10);
+        await Users.update(admin.id, { password: hashedPassword });
+        res.json({ success: true, message: 'Password reset for admin ID: ' + admin.id });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
 module.exports = router;
