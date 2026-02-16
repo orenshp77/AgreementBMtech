@@ -77,10 +77,10 @@ router.post('/', verifyToken, (req, res) => {
             });
         }
 
-        if (!companyName || !companyId || !contactName || !contactId) {
+        if (!companyName || !companyId) {
             return res.status(400).json({
                 success: false,
-                message: 'נא למלא את כל פרטי הלקוח'
+                message: 'נא למלא את שם החברה וח.פ/עוסק מורשה'
             });
         }
 

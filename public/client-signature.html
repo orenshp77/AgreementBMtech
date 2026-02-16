@@ -154,6 +154,11 @@
             height: 40px;
             fill: white;
         }
+        .swal-big-button {
+            font-size: 20px !important;
+            padding: 15px 40px !important;
+            min-width: 250px !important;
+        }
     </style>
 </head>
 <body>
@@ -398,14 +403,17 @@
                 return;
             }
 
-            const confirmed = await AppUtils.showConfirm(
-                'אישור חתימה',
-                'האם אתה בטוח שברצונך לחתום על ההסכם? פעולה זו לא ניתנת לביטול.',
-                'חתום',
-                'ביטול'
-            );
+            const result = await Swal.fire({
+                title: 'לחצו לשליחת החתימה',
+                showCancelButton: false,
+                confirmButtonText: 'שליחת הטופס החתום',
+                allowOutsideClick: false,
+                customClass: {
+                    confirmButton: 'swal-big-button'
+                }
+            });
 
-            if (!confirmed) return;
+            if (!result.isConfirmed) return;
 
             try {
                 AppUtils.showLoader('שומר חתימה...');
@@ -419,15 +427,12 @@
                 AppUtils.hideLoader();
 
                 // Show success and send options
-                const { value: sendMethod } = await Swal.fire({
-                    title: 'ההסכם נחתם בהצלחה!',
+                const { value: sendMethod, dismiss } = await Swal.fire({
+                    title: 'תודה רבה הטופס נשלח',
                     icon: 'success',
                     html: `
-                        <p class="mb-lg">כיצד תרצה לשלוח את ההסכם החתום?</p>
+                        <p class="mb-lg">באפשרותכם לשלוח את הטופס<br>גם בוואטאפ או בSMS</p>
                         <div class="flex flex-col gap-md">
-                            <button class="btn btn-primary btn-block send-opt" data-method="email">
-                                שליחה למייל
-                            </button>
                             <button class="btn btn-success btn-block send-opt" data-method="whatsapp">
                                 שליחה בוואטסאפ
                             </button>
@@ -435,10 +440,11 @@
                                 שליחה ב-SMS
                             </button>
                         </div>
+                        <p class="text-secondary mt-md">(לא חובה)</p>
                     `,
                     showConfirmButton: false,
                     showCancelButton: true,
-                    cancelButtonText: 'סגור',
+                    cancelButtonText: 'תודה על שיתוף הפעולה',
                     didOpen: () => {
                         document.querySelectorAll('.send-opt').forEach(btn => {
                             btn.addEventListener('click', () => {
@@ -452,10 +458,8 @@
                     handleSendSignedAgreement(sendMethod);
                 }
 
-                // Refresh page to show "already signed" state
-                setTimeout(() => {
-                    window.location.reload();
-                }, 2000);
+                // Redirect to reshetimes website
+                window.location.href = 'https://reshetimes.co.il/home-page.html';
 
             } catch (error) {
                 AppUtils.hideLoader();

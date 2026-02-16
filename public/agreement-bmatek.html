@@ -56,14 +56,14 @@
                                placeholder="מספר חברה או עוסק" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="contactName">שם איש קשר (XXX3)</label>
+                        <label class="form-label" for="contactName">שם איש קשר (XXX3) <span class="text-secondary" style="font-size: 0.85em; font-weight: normal;">(לא חובה)</span></label>
                         <input type="text" id="contactName" name="contactName" class="form-input"
-                               placeholder="שם פרטי ומשפחה" required>
+                               placeholder="שם פרטי ומשפחה">
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="contactId">ת.ז. (XXX4)</label>
+                        <label class="form-label" for="contactId">ת.ז. (XXX4) <span class="text-secondary" style="font-size: 0.85em; font-weight: normal;">(לא חובה)</span></label>
                         <input type="text" id="contactId" name="contactId" class="form-input"
-                               placeholder="מספר תעודת זהות" required>
+                               placeholder="מספר תעודת זהות">
                     </div>
                 </div>
 
@@ -256,8 +256,8 @@
         }
 
         function validateForm(data) {
-            if (!data.companyName || !data.companyId || !data.contactName || !data.contactId) {
-                AppUtils.showToast('נא למלא את כל פרטי הלקוח', 'warning');
+            if (!data.companyName || !data.companyId) {
+                AppUtils.showToast('נא למלא את שם החברה וח.פ/עוסק מורשה', 'warning');
                 return false;
             }
             if (!data.monthlyAmount || !data.paymentDay || !data.effectiveDate || !data.duration) {
