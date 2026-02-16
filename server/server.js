@@ -105,7 +105,7 @@ app.get('/editor', (req, res) => {
 // OAuth2 setup routes (temporary - remove after getting refresh token)
 const { google } = require('googleapis');
 const OAUTH_CLIENT_ID = '1040161889673-t3pm2dod9esa0286h7gd6qk5aj1ovj9q.apps.googleusercontent.com';
-const OAUTH_CLIENT_SECRET = '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';
+const OAUTH_CLIENT_SECRET = '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';
 
 app.get('/setup-drive', (req, res) => {
     // Use x-forwarded-proto for Render (behind reverse proxy)
