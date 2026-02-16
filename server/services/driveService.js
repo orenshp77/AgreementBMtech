@@ -1,5 +1,6 @@
 const { google } = require('googleapis');
 const path = require('path');
+const fs = require('fs');
 
 // Google Drive folder ID for backups
 const DRIVE_FOLDER_ID = '1iksarwV8HB08SfwnD6nryCooogKaTSvZ';
@@ -8,18 +9,35 @@ let driveClient = null;
 
 /**
  * Initialize Google Drive client with Service Account
- * This is more reliable for server-to-server communication
+ * Supports both file-based and environment variable credentials
  */
 function initDriveClient() {
     if (driveClient) return driveClient;
 
     try {
-        // Load service account credentials
-        const credentialsPath = path.join(__dirname, '../../drive-credentials.json');
-        const auth = new google.auth.GoogleAuth({
-            keyFile: credentialsPath,
-            scopes: ['https://www.googleapis.com/auth/drive.file']
-        });
+        let auth;
+
+        // Try environment variable first (for Render)
+        if (process.env.GOOGLE_CREDENTIALS) {
+            const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS);
+            auth = new google.auth.GoogleAuth({
+                credentials: credentials,
+                scopes: ['https://www.googleapis.com/auth/drive.file']
+            });
+            console.log('Using Google credentials from environment variable');
+        } else {
+            // Fall back to file (for local development)
+            const credentialsPath = path.join(__dirname, '../../drive-credentials.json');
+            if (!fs.existsSync(credentialsPath)) {
+                console.warn('No Google Drive credentials found. Backup disabled.');
+                return null;
+            }
+            auth = new google.auth.GoogleAuth({
+                keyFile: credentialsPath,
+                scopes: ['https://www.googleapis.com/auth/drive.file']
+            });
+            console.log('Using Google credentials from file');
+        }
 
         driveClient = google.drive({ version: 'v3', auth });
         console.log('Google Drive client initialized with Service Account');
