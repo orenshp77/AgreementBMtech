@@ -6,8 +6,68 @@
     <title>התחברות - מערכת הסכמים</title>
     <link rel="stylesheet" href="/assets/css/styles.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        /* Background Slideshow */
+        .background-slideshow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .background-slideshow .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+        }
+
+        .background-slideshow .slide.active {
+            opacity: 1;
+        }
+
+        .background-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: -1;
+        }
+
+        .login-page {
+            background: transparent !important;
+        }
+
+        .login-card {
+            backdrop-filter: blur(10px);
+            background-color: rgba(37, 37, 37, 0.9) !important;
+        }
+    </style>
 </head>
 <body>
+    <!-- Background Slideshow -->
+    <div class="background-slideshow">
+        <div class="slide active" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80');"></div>
+        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=1920&q=80');"></div>
+        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1920&q=80');"></div>
+        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1920&q=80');"></div>
+        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1920&q=80');"></div>
+        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=1920&q=80');"></div>
+        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1920&q=80');"></div>
+        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=1920&q=80');"></div>
+    </div>
+    <div class="background-overlay"></div>
+
     <div class="loader-overlay">
         <div class="flex flex-col items-center">
             <div class="loader"></div>
@@ -18,7 +78,7 @@
     <div class="login-page">
         <div class="card login-card">
             <div class="text-center mb-xl">
-                <img src="/assets/images/open.jpg" alt="Reshet Times" class="login-logo" onerror="this.style.display='none'">
+                <img src="/assets/images/Logo_full222.png" alt="Reshet Times" class="login-logo" onerror="this.style.display='none'">
                 <h1>מערכת הסכמים</h1>
                 <p class="text-secondary">Reshet Times / AIweon</p>
             </div>
@@ -94,6 +154,24 @@
             }
         }
         initAdmin();
+
+        // Background Slideshow
+        const slides = document.querySelectorAll('.background-slideshow .slide');
+        let currentSlide = 0;
+
+        function changeSlide() {
+            slides[currentSlide].classList.remove('active');
+            // Random next slide (not the current one)
+            let nextSlide;
+            do {
+                nextSlide = Math.floor(Math.random() * slides.length);
+            } while (nextSlide === currentSlide && slides.length > 1);
+            currentSlide = nextSlide;
+            slides[currentSlide].classList.add('active');
+        }
+
+        // Change slide every 5 seconds
+        setInterval(changeSlide, 5000);
     </script>
 </body>
 </html>
