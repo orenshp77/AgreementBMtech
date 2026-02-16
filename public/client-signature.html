@@ -246,6 +246,22 @@
                     <p class="text-secondary">${companyName}</p>
                 </div>
 
+                <a href="/client/${agreementId}" class="view-agreement-btn" target="_blank">
+                    לחץ כאן לצפייה בהסכם המלא
+                </a>
+
+                <div class="signature-section">
+                    <h3>חתום כאן</h3>
+                    <div class="signature-canvas-container">
+                        <canvas id="signatureCanvas"></canvas>
+                    </div>
+                    <div class="signature-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="clearSignature()">
+                            נקה חתימה
+                        </button>
+                    </div>
+                </div>
+
                 <div class="info-card">
                     <h3 style="margin-bottom: 15px;">פרטי ההסכם</h3>
                     <div class="info-row">
@@ -267,22 +283,6 @@
                     <div class="info-row">
                         <span class="info-label">תאריך תחילה:</span>
                         <span class="info-value">${AppUtils.formatDate(agreement.effectiveDate)}</span>
-                    </div>
-                </div>
-
-                <a href="/client/${agreementId}" class="view-agreement-btn" target="_blank">
-                    לחץ כאן לצפייה בהסכם המלא
-                </a>
-
-                <div class="signature-section">
-                    <h3>חתום כאן</h3>
-                    <div class="signature-canvas-container">
-                        <canvas id="signatureCanvas"></canvas>
-                    </div>
-                    <div class="signature-actions">
-                        <button class="btn btn-secondary btn-sm" onclick="clearSignature()">
-                            נקה חתימה
-                        </button>
                     </div>
                 </div>
 
