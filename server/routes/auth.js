@@ -132,8 +132,8 @@ router.post('/change-password', verifyToken, async (req, res) => {
     }
 });
 
-// Initialize admin user (run once)
-router.post('/init', async (req, res) => {
+// Initialize admin user (run once) - GET for easy browser access
+router.get('/init', async (req, res) => {
     try {
         const existingAdmin = await Users.getByUsername('admin');
 
