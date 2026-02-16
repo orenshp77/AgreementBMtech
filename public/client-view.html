@@ -401,8 +401,14 @@
         const agreementId = pathParts[pathParts.length - 1];
 
         if (!agreementId) {
-            alert('הסכם לא נמצא');
-            setTimeout(() => window.location.href = '/', 2000);
+            Swal.fire({
+                icon: 'error',
+                title: 'שגיאה בטעינת ההסכם',
+                text: 'הסכם לא נמצא',
+                confirmButtonText: 'אישור'
+            }).then(() => {
+                window.location.href = '/dashboard';
+            });
         }
 
         // Check if user is logged in (admin/employee) - show back button only for them
@@ -435,7 +441,14 @@
                 }, 500);
 
             } catch (error) {
-                alert('שגיאה בטעינת ההסכם: ' + error.message);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'שגיאה בטעינת ההסכם',
+                    text: error.message,
+                    confirmButtonText: 'אישור'
+                }).then(() => {
+                    window.location.href = '/dashboard';
+                });
                 document.getElementById('loader').classList.add('hidden');
             }
         }
