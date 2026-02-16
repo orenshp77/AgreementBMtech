@@ -146,6 +146,12 @@ router.post('/', verifyToken, (req, res) => {
             clientName: companyName
         }, req);
 
+        // Emit real-time update
+        const io = req.app.get('io');
+        if (io) {
+            io.emit('agreement:created', createdAgreement);
+        }
+
         res.status(201).json({
             success: true,
             message: 'הסכם נוצר בהצלחה',
@@ -200,6 +206,12 @@ router.put('/:id', verifyToken, (req, res) => {
         const updatedAgreement = Agreements.update(agreementId, updates);
 
         createLog('INFO', req.user.id, 'Agreement updated', { agreementId }, req);
+
+        // Emit real-time update
+        const io = req.app.get('io');
+        if (io) {
+            io.emit('agreement:updated', updatedAgreement);
+        }
 
         res.json({
             success: true,
@@ -336,6 +348,12 @@ router.post('/:id/sign', async (req, res) => {
             console.error('Failed to send signed notification:', err);
         });
 
+        // Emit real-time update
+        const io = req.app.get('io');
+        if (io) {
+            io.emit('agreement:signed', updatedAgreement);
+        }
+
         res.json({
             success: true,
             message: 'ההסכם נחתם בהצלחה',
@@ -382,6 +400,12 @@ router.delete('/:id', verifyToken, (req, res) => {
             agreementId,
             clientName: agreement.companyName
         }, req);
+
+        // Emit real-time update
+        const io = req.app.get('io');
+        if (io) {
+            io.emit('agreement:deleted', { id: agreementId });
+        }
 
         res.json({
             success: true,

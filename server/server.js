@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const http = require('http');
+const { Server } = require('socket.io');
 require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
@@ -9,7 +11,27 @@ const agreementsRoutes = require('./routes/agreements');
 const logsRoutes = require('./routes/logs');
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+    }
+});
+
+// Make io available globally for routes
+app.set('io', io);
+
 const PORT = process.env.PORT || 3000;
+
+// Socket.IO connection handling
+io.on('connection', (socket) => {
+    console.log('Client connected:', socket.id);
+
+    socket.on('disconnect', () => {
+        console.log('Client disconnected:', socket.id);
+    });
+});
 
 // Middleware
 app.use(cors());
@@ -98,9 +120,10 @@ app.use((req, res) => {
     });
 });
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`📁 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🔌 Socket.IO enabled for real-time updates`);
 });
 
-module.exports = app;
+module.exports = { app, io };

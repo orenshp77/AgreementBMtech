@@ -6,6 +6,7 @@
     <title>לוח בקרה - מערכת הסכמים</title>
     <link rel="stylesheet" href="/assets/css/styles.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 </head>
 <body>
     <div class="loader-overlay">
@@ -519,6 +520,60 @@
                 AppUtils.hideLoader();
                 AppUtils.showError(error.message);
             }
+        }
+
+        // Real-time updates with Socket.IO
+        const socket = io();
+
+        socket.on('connect', () => {
+            console.log('Connected to real-time updates');
+        });
+
+        socket.on('agreement:created', (agreement) => {
+            console.log('New agreement created:', agreement.companyName);
+            // Add to local array and refresh display
+            allAgreements.unshift(agreement);
+            updateStats();
+            filterAgreements();
+            AppUtils.showToast(`הסכם חדש נוצר: ${agreement.companyName}`, 'info');
+        });
+
+        socket.on('agreement:updated', (agreement) => {
+            console.log('Agreement updated:', agreement.companyName);
+            // Update in local array
+            const index = allAgreements.findIndex(a => a.id === agreement.id);
+            if (index !== -1) {
+                allAgreements[index] = agreement;
+            }
+            updateStats();
+            filterAgreements();
+        });
+
+        socket.on('agreement:signed', (agreement) => {
+            console.log('Agreement signed:', agreement.companyName);
+            // Update in local array
+            const index = allAgreements.findIndex(a => a.id === agreement.id);
+            if (index !== -1) {
+                allAgreements[index] = agreement;
+            }
+            updateStats();
+            filterAgreements();
+            AppUtils.showToast(`הסכם נחתם: ${agreement.companyName}`, 'success');
+        });
+
+        socket.on('agreement:deleted', (data) => {
+            console.log('Agreement deleted:', data.id);
+            // Remove from local array
+            allAgreements = allAgreements.filter(a => a.id !== data.id);
+            updateStats();
+            filterAgreements();
+        });
+
+        function updateStats() {
+            document.getElementById('statTotal').textContent = allAgreements.length;
+            document.getElementById('statDraft').textContent = allAgreements.filter(a => a.status === 'draft').length;
+            document.getElementById('statSent').textContent = allAgreements.filter(a => a.status === 'sent').length;
+            document.getElementById('statSigned').textContent = allAgreements.filter(a => a.status === 'signed' || a.status === 'completed').length;
         }
     </script>
 </body>

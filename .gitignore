@@ -26,3 +26,4 @@ build/
 # Temp files
 *.tmp
 *.temp
+drive-credentials.json
