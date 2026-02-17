@@ -1,14 +1,16 @@
 const jwt = require('jsonwebtoken');
 const { Users, Logs } = require('../database');
 const { v4: uuidv4 } = require('uuid');
+const { sendErrorNotification } = require('../services/emailService');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'default-secret-change-in-production';
 
 // Create log entry
 async function createLog(type, userId, action, details = {}, req = null) {
+    const timestamp = new Date().toISOString();
     const log = {
         id: uuidv4(),
-        timestamp: new Date().toISOString(),
+        timestamp,
         type,
         userId,
         action,
@@ -17,6 +19,25 @@ async function createLog(type, userId, action, details = {}, req = null) {
         ip: req?.ip || req?.connection?.remoteAddress || 'unknown'
     };
     await Logs.create(log);
+
+    // Send email notification for errors
+    if (type === 'ERROR') {
+        sendErrorNotification({
+            error: details.error || action,
+            stack: details.stack || null,
+            action,
+            details,
+            endpoint: req?.originalUrl || req?.path,
+            method: req?.method,
+            userId,
+            timestamp,
+            ip: log.ip,
+            userAgent: log.platform
+        }).catch(err => {
+            console.error('Failed to send error notification:', err);
+        });
+    }
+
     return log;
 }
 
