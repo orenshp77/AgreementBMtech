@@ -509,8 +509,8 @@
                     handleSendSignedAgreement(sendMethod);
                 }
 
-                // Redirect to client-view to backup PDF, then it will redirect to reshetimes
-                window.location.href = `/client/${agreementId}?backup=true&redirect=true`;
+                // Redirect to view the signed agreement
+                window.location.href = `/client/${agreementId}`;
 
             } catch (error) {
                 AppUtils.hideLoader();

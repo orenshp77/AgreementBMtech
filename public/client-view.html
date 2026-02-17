@@ -548,7 +548,6 @@
 
         let loadedPages = 0;
         const urlParams = new URLSearchParams(window.location.search);
-        let shouldBackup = urlParams.get('backup') === 'true';
         let shouldRedirect = urlParams.get('redirect') === 'true';
 
         function onPageLoad(pageNum) {
@@ -556,91 +555,9 @@
             // ResizeObserver will automatically handle size updates
             if (loadedPages >= TOTAL_PAGES) {
                 document.getElementById('loader').classList.add('hidden');
-
-                // If backup flag is set, generate PDF and upload
-                if (shouldBackup) {
-                    shouldBackup = false; // Prevent multiple backups
-                    setTimeout(backupPdfToDrive, 1000); // Wait for rendering
-                }
             }
         }
 
-        async function backupPdfToDrive() {
-            try {
-                // Show backup progress
-                document.getElementById('loader').classList.remove('hidden');
-                document.querySelector('.loader-text').textContent = 'מגבה PDF ל-Drive...';
-
-                const viewer = document.getElementById('agreementViewer');
-
-                // Configure html2pdf options for high quality
-                const options = {
-                    margin: 0,
-                    filename: `agreement_${agreementId}.pdf`,
-                    image: { type: 'jpeg', quality: 0.95 },
-                    html2canvas: {
-                        scale: 2,
-                        useCORS: true,
-                        allowTaint: true,
-                        letterRendering: true
-                    },
-                    jsPDF: {
-                        unit: 'mm',
-                        format: 'a4',
-                        orientation: 'portrait'
-                    },
-                    pagebreak: { mode: ['css', 'legacy'] }
-                };
-
-                // Generate PDF as base64
-                const pdfBlob = await html2pdf().set(options).from(viewer).outputPdf('blob');
-
-                // Convert blob to base64
-                const reader = new FileReader();
-                const base64Promise = new Promise((resolve, reject) => {
-                    reader.onloadend = () => resolve(reader.result);
-                    reader.onerror = reject;
-                });
-                reader.readAsDataURL(pdfBlob);
-                const base64Data = await base64Promise;
-
-                // Upload to server
-                const response = await fetch(`/api/agreements/${agreementId}/backup-pdf`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        pdfData: base64Data
-                    })
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    console.log('PDF backed up successfully:', result.data);
-                } else {
-                    console.error('Backup failed:', result.message);
-                }
-
-            } catch (error) {
-                console.error('PDF backup error:', error);
-            } finally {
-                document.getElementById('loader').classList.add('hidden');
-                document.querySelector('.loader-text').textContent = 'טוען הסכם...';
-
-                // If redirect flag is set, redirect to reshetimes
-                if (shouldRedirect) {
-                    window.location.href = 'https://reshetimes.co.il/home-page.html';
-                    return;
-                }
-
-                // Remove backup param from URL
-                const url = new URL(window.location);
-                url.searchParams.delete('backup');
-                window.history.replaceState({}, '', url);
-            }
-        }
     </script>
 </body>
 </html>
