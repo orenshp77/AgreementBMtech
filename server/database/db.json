@@ -5,23 +5,90 @@
       "fullName": "מנהל מערכת",
       "phone": "0501234567",
       "username": "admin",
-      "password": "$2a$10$PuZswdXkfirrLFb/NWaF1OxiX5rvQ5fbYcfaQm7L.h7OHRmLK0r3.",
+      "password": "$2a$10$8S6kFQe4zRtVZ8jSQQ6tj..QoQLDhMN85f.MsigqC61sbPo1qUvuq",
       "role": "admin",
       "createdAt": "2026-02-15T10:35:41.162Z",
       "updatedAt": "2026-02-15T10:35:41.162Z"
-    },
-    {
-      "id": "2a01a6d7-91ad-4181-bdfb-7952014fb2f1",
-      "fullName": "נסטיה",
-      "phone": "0523244140",
-      "username": "ns",
-      "password": "$2a$10$ecpV/c/v.6sKRYqUgj4oV.fTiq8E9q1SGj0h1LfDiTwwmM7pj7dRK",
-      "role": "user",
-      "createdAt": "2026-02-15T13:30:36.608Z",
-      "updatedAt": "2026-02-15T13:30:36.608Z"
     }
   ],
-  "agreements": [],
+  "agreements": [
+    {
+      "id": "7743e630-b500-4902-878f-ad5f87ace1e4",
+      "type": "bmatek",
+      "status": "draft",
+      "createdBy": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "createdByName": "מנהל מערכת",
+      "companyName": "אבי בן גד שיווק דיו וטונרים בעמ",
+      "companyId": "000000000",
+      "contactName": "",
+      "contactId": "",
+      "monthlyAmount": 12222,
+      "paymentDay": 1,
+      "effectiveDate": "2026-02-18",
+      "duration": 3,
+      "agreementDate": "2026-02-18",
+      "selectedServices": {
+        "section21": "",
+        "section22": "",
+        "section23": ""
+      },
+      "notes": "",
+      "companyTemplate": {
+        "companyName": "Reshet Times",
+        "parentCompany": "במטק בע\"מ",
+        "companyId": "514074442",
+        "address": "דרך חיפה 19, קריית אתא",
+        "phone": "04-8427272",
+        "fax": "04-8409410"
+      },
+      "clientSignature": null,
+      "companyStamp": "514074442",
+      "sentAt": null,
+      "sentVia": null,
+      "signedAt": null,
+      "pdfUrl": null,
+      "createdAt": "2026-02-18T10:41:22.710Z",
+      "updatedAt": "2026-02-18T10:41:22.710Z"
+    },
+    {
+      "id": "28d74948-e3af-4c59-aeaa-8ea41685d90a",
+      "type": "bmatek",
+      "status": "draft",
+      "createdBy": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "createdByName": "מנהל מערכת",
+      "companyName": "אורן",
+      "companyId": "000000000",
+      "contactName": "",
+      "contactId": "",
+      "monthlyAmount": 11111,
+      "paymentDay": "",
+      "effectiveDate": "2026-02-18",
+      "duration": 3,
+      "agreementDate": "2026-02-18",
+      "selectedServices": {
+        "section21": "",
+        "section22": "",
+        "section23": ""
+      },
+      "notes": "",
+      "companyTemplate": {
+        "companyName": "Reshet Times",
+        "parentCompany": "במטק בע\"מ",
+        "companyId": "514074442",
+        "address": "דרך חיפה 19, קריית אתא",
+        "phone": "04-8427272",
+        "fax": "04-8409410"
+      },
+      "clientSignature": null,
+      "companyStamp": "514074442",
+      "sentAt": null,
+      "sentVia": null,
+      "signedAt": null,
+      "pdfUrl": null,
+      "createdAt": "2026-02-18T11:04:25.612Z",
+      "updatedAt": "2026-02-18T11:04:25.612Z"
+    }
+  ],
   "logs": [
     {
       "id": "31b5b7b1-af55-4aad-90ea-07445e551623",
@@ -992,6 +1059,69 @@
       "details": {
         "agreementId": "3a21d48e-5114-4674-8084-f5ef99364fa9",
         "clientName": "אורן שפייר"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "8c4949c6-ea33-4595-9626-debf614f3b76",
+      "timestamp": "2026-02-18T09:51:46.287Z",
+      "type": "AUTH",
+      "userId": null,
+      "action": "Invalid token",
+      "details": {
+        "error": "jwt expired"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "1df6d349-b81e-486b-bd80-3982a098209b",
+      "timestamp": "2026-02-18T09:52:09.666Z",
+      "type": "AUTH",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Login successful",
+      "details": {},
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "ae96e02e-81e3-4618-9a75-081399d416ec",
+      "timestamp": "2026-02-18T10:08:17.620Z",
+      "type": "INFO",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "User deleted",
+      "details": {
+        "deletedUserId": "2a01a6d7-91ad-4181-bdfb-7952014fb2f1",
+        "username": "ns"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "24799ae4-3f3a-474d-ae0a-a7ac9b7777ab",
+      "timestamp": "2026-02-18T10:41:22.711Z",
+      "type": "INFO",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Agreement created",
+      "details": {
+        "agreementId": "7743e630-b500-4902-878f-ad5f87ace1e4",
+        "type": "bmatek",
+        "clientName": "אבי בן גד שיווק דיו וטונרים בעמ"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "76077586-23a6-47fc-84af-44910725ec9c",
+      "timestamp": "2026-02-18T11:04:25.613Z",
+      "type": "INFO",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Agreement created",
+      "details": {
+        "agreementId": "28d74948-e3af-4c59-aeaa-8ea41685d90a",
+        "type": "bmatek",
+        "clientName": "אורן"
       },
       "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
       "ip": "::1"

@@ -483,20 +483,10 @@
                                 <label class="form-label">הערות</label>
                                 <textarea id="edit-notes" class="swal2-textarea" style="width: 100%; min-height: 80px; margin: 0;" placeholder="הערות נוספות להסכם...">${agreement.notes || ''}</textarea>
                             </div>
-                            <hr style="margin: 1rem 0; border-color: var(--border-color);">
-                            <h4 style="margin-bottom: 1rem;">שירותים</h4>
-                            <div class="form-group">
-                                <label class="form-label">סעיף 2.1 - שירותי פרסום</label>
-                                <textarea id="edit-section21" class="swal2-textarea" style="width: 100%; min-height: 80px; margin: 0;">${agreement.selectedServices?.section21 || ''}</textarea>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">סעיף 2.2 - שירותים נוספים</label>
-                                <textarea id="edit-section22" class="swal2-textarea" style="width: 100%; min-height: 80px; margin: 0;">${agreement.selectedServices?.section22 || ''}</textarea>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">סעיף 2.3 - שירותים מיוחדים</label>
-                                <textarea id="edit-section23" class="swal2-textarea" style="width: 100%; min-height: 80px; margin: 0;">${agreement.selectedServices?.section23 || ''}</textarea>
-                            </div>
+                            <!-- Hidden services fields to preserve data -->
+                            <input type="hidden" id="edit-section21" value="${agreement.selectedServices?.section21 || ''}">
+                            <input type="hidden" id="edit-section22" value="${agreement.selectedServices?.section22 || ''}">
+                            <input type="hidden" id="edit-section23" value="${agreement.selectedServices?.section23 || ''}">
                         </div>
                     `,
                     showCancelButton: true,

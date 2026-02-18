@@ -1,13 +1,14 @@
 SUBDOMAIN
 https://agreement-signing-system.onrender.com/dashboard
-
+----------------------------------------------------
 כניסה למנהל:
+
 שם משתמש	
 admin
 
 סיסמה
 Admin@RT2026!
-
+-------------------------------------------------------
 שרת RENDER
 קישור:
 https://dashboard.render.com/web/srv-d69dpl15pdvs738fn2mg
