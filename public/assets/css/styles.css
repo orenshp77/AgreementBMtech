@@ -518,6 +518,11 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     background-color: var(--bg-tertiary);
 }
 
+#userName {
+    color: var(--accent-red) !important;
+    font-weight: 700;
+}
+
 /* Tables */
 .table-container {
     overflow-x: auto;
