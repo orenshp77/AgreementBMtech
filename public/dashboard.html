@@ -75,10 +75,11 @@
 
         <!-- Search Box -->
         <div style="margin-bottom: 20px;">
+            <h3 style="margin-bottom: 10px; color: #ffffff; font-size: 16px; text-align: right;">חיפוש כללי לפי אותיות ומספרים</h3>
             <input type="text"
                    id="searchInput"
                    class="form-input"
-                   placeholder="חיפוש לפי שם, טלפון, ח.פ, ת.ז, שם עסק..."
+                   placeholder="חיפוש כללי לפי אותיות ומספרים"
                    style="width: 100%; padding: 15px; font-size: 16px; border-radius: 10px; background: var(--bg-card); border: 1px solid var(--border-color);"
                    oninput="filterAgreements()">
         </div>
@@ -167,12 +168,26 @@
             }
 
             const filtered = allAgreements.filter(a => {
+                // Hebrew type and status names for search
+                const typeHeb = a.type === 'bmatek' ? 'במטק' : 'בגדא';
+                const statusHeb = {
+                    'draft': 'טיוטה',
+                    'sent': 'נשלח',
+                    'signed': 'נחתם',
+                    'completed': 'הושלם'
+                }[a.status] || a.status;
+
                 const searchFields = [
                     a.companyName || '',
                     a.companyId || '',
                     a.contactName || '',
                     a.contactId || '',
-                    a.createdByName || ''
+                    a.createdByName || '',
+                    typeHeb,
+                    statusHeb,
+                    a.monthlyAmount ? String(a.monthlyAmount) : '',
+                    a.createdAt ? new Date(a.createdAt).toLocaleDateString('he-IL') : '',
+                    a.notes || ''
                 ].join(' ').toLowerCase();
 
                 return searchFields.includes(searchTerm);

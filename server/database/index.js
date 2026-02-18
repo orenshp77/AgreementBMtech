@@ -1,15 +1,40 @@
-const { Pool } = require('pg');
 const fs = require('fs');
 const path = require('path');
 
-// Create PostgreSQL connection pool
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
-});
+const DB_PATH = path.join(__dirname, 'db.json');
+const usePostgres = !!process.env.DATABASE_URL;
 
-// Initialize database schema
+let pool = null;
+
+// Initialize PostgreSQL if DATABASE_URL is set
+if (usePostgres) {
+    const { Pool } = require('pg');
+    pool = new Pool({
+        connectionString: process.env.DATABASE_URL,
+        ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+    });
+}
+
+// JSON file operations
+function readDB() {
+    try {
+        const data = fs.readFileSync(DB_PATH, 'utf8');
+        return JSON.parse(data);
+    } catch (error) {
+        return { users: [], agreements: [], logs: [], templates: {} };
+    }
+}
+
+function writeDB(data) {
+    fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
+}
+
+// Initialize database schema (PostgreSQL only)
 async function initializeDatabase() {
+    if (!usePostgres) {
+        console.log('Using JSON file storage (db.json)');
+        return;
+    }
     try {
         const schemaPath = path.join(__dirname, 'schema.sql');
         const schema = fs.readFileSync(schemaPath, 'utf8');
@@ -33,7 +58,6 @@ function toCamelCase(obj) {
     for (const key in obj) {
         const camelKey = key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
         const value = obj[key];
-        // Convert Date objects to ISO strings
         if (value instanceof Date) {
             newObj[camelKey] = value.toISOString();
         } else {
@@ -46,6 +70,10 @@ function toCamelCase(obj) {
 // Users operations
 const Users = {
     getAll: async () => {
+        if (!usePostgres) {
+            const db = readDB();
+            return db.users.map(u => ({ ...u, password: undefined }));
+        }
         const result = await pool.query(
             'SELECT id, full_name, phone, username, role, created_at, updated_at FROM users ORDER BY created_at DESC'
         );
@@ -53,22 +81,30 @@ const Users = {
     },
 
     getById: async (id) => {
-        const result = await pool.query(
-            'SELECT * FROM users WHERE id = $1',
-            [id]
-        );
+        if (!usePostgres) {
+            const db = readDB();
+            return db.users.find(u => u.id === id) || null;
+        }
+        const result = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
         return result.rows[0] ? toCamelCase(result.rows[0]) : null;
     },
 
     getByUsername: async (username) => {
-        const result = await pool.query(
-            'SELECT * FROM users WHERE username = $1',
-            [username]
-        );
+        if (!usePostgres) {
+            const db = readDB();
+            return db.users.find(u => u.username === username) || null;
+        }
+        const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
         return result.rows[0] ? toCamelCase(result.rows[0]) : null;
     },
 
     create: async (user) => {
+        if (!usePostgres) {
+            const db = readDB();
+            db.users.push(user);
+            writeDB(db);
+            return { ...user, password: undefined };
+        }
         const result = await pool.query(
             `INSERT INTO users (id, full_name, phone, username, password, role, created_at, updated_at)
              VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
@@ -79,6 +115,14 @@ const Users = {
     },
 
     update: async (id, updates) => {
+        if (!usePostgres) {
+            const db = readDB();
+            const index = db.users.findIndex(u => u.id === id);
+            if (index === -1) return null;
+            db.users[index] = { ...db.users[index], ...updates, updatedAt: new Date().toISOString() };
+            writeDB(db);
+            return { ...db.users[index], password: undefined };
+        }
         const setClauses = [];
         const values = [];
         let paramIndex = 1;
@@ -112,10 +156,15 @@ const Users = {
     },
 
     delete: async (id) => {
-        const result = await pool.query(
-            'DELETE FROM users WHERE id = $1 RETURNING id',
-            [id]
-        );
+        if (!usePostgres) {
+            const db = readDB();
+            const index = db.users.findIndex(u => u.id === id);
+            if (index === -1) return false;
+            db.users.splice(index, 1);
+            writeDB(db);
+            return true;
+        }
+        const result = await pool.query('DELETE FROM users WHERE id = $1 RETURNING id', [id]);
         return result.rowCount > 0;
     }
 };
@@ -123,21 +172,30 @@ const Users = {
 // Agreements operations
 const Agreements = {
     getAll: async () => {
-        const result = await pool.query(
-            'SELECT * FROM agreements ORDER BY created_at DESC'
-        );
+        if (!usePostgres) {
+            const db = readDB();
+            return db.agreements.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        }
+        const result = await pool.query('SELECT * FROM agreements ORDER BY created_at DESC');
         return result.rows.map(row => toCamelCase(row));
     },
 
     getById: async (id) => {
-        const result = await pool.query(
-            'SELECT * FROM agreements WHERE id = $1',
-            [id]
-        );
+        if (!usePostgres) {
+            const db = readDB();
+            return db.agreements.find(a => a.id === id) || null;
+        }
+        const result = await pool.query('SELECT * FROM agreements WHERE id = $1', [id]);
         return result.rows[0] ? toCamelCase(result.rows[0]) : null;
     },
 
     getByUser: async (userId) => {
+        if (!usePostgres) {
+            const db = readDB();
+            return db.agreements
+                .filter(a => a.createdBy === userId)
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        }
         const result = await pool.query(
             'SELECT * FROM agreements WHERE created_by = $1 ORDER BY created_at DESC',
             [userId]
@@ -146,6 +204,12 @@ const Agreements = {
     },
 
     create: async (agreement) => {
+        if (!usePostgres) {
+            const db = readDB();
+            db.agreements.push(agreement);
+            writeDB(db);
+            return agreement;
+        }
         const result = await pool.query(
             `INSERT INTO agreements (
                 id, type, status, created_by, created_by_name,
@@ -158,64 +222,41 @@ const Agreements = {
             ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27)
             RETURNING *`,
             [
-                agreement.id,
-                agreement.type,
-                agreement.status,
-                agreement.createdBy,
-                agreement.createdByName,
-                agreement.companyName,
-                agreement.companyId,
-                agreement.contactName,
-                agreement.contactId,
-                agreement.monthlyAmount,
-                agreement.paymentDay,
-                agreement.effectiveDate,
-                agreement.duration,
-                agreement.agreementDate,
-                JSON.stringify(agreement.selectedServices || {}),
-                agreement.notes,
-                JSON.stringify(agreement.companyTemplate || {}),
-                agreement.clientSignature,
-                agreement.companyStamp,
-                agreement.sentAt,
-                agreement.sentVia,
-                agreement.sentTo,
-                agreement.signedAt,
-                agreement.pdfUrl,
+                agreement.id, agreement.type, agreement.status, agreement.createdBy, agreement.createdByName,
+                agreement.companyName, agreement.companyId, agreement.contactName, agreement.contactId,
+                agreement.monthlyAmount, agreement.paymentDay, agreement.effectiveDate, agreement.duration, agreement.agreementDate,
+                JSON.stringify(agreement.selectedServices || {}), agreement.notes, JSON.stringify(agreement.companyTemplate || {}),
+                agreement.clientSignature, agreement.companyStamp,
+                agreement.sentAt, agreement.sentVia, agreement.sentTo, agreement.signedAt, agreement.pdfUrl,
                 agreement.driveBackup ? JSON.stringify(agreement.driveBackup) : null,
-                agreement.createdAt,
-                agreement.updatedAt
+                agreement.createdAt, agreement.updatedAt
             ]
         );
         return toCamelCase(result.rows[0]);
     },
 
     update: async (id, updates) => {
+        if (!usePostgres) {
+            const db = readDB();
+            const index = db.agreements.findIndex(a => a.id === id);
+            if (index === -1) return null;
+            db.agreements[index] = { ...db.agreements[index], ...updates, updatedAt: new Date().toISOString() };
+            writeDB(db);
+            return db.agreements[index];
+        }
         const setClauses = [];
         const values = [];
         let paramIndex = 1;
 
         const fieldMappings = {
-            type: 'type',
-            status: 'status',
-            createdByName: 'created_by_name',
-            companyName: 'company_name',
-            companyId: 'company_id',
-            contactName: 'contact_name',
-            contactId: 'contact_id',
-            monthlyAmount: 'monthly_amount',
-            paymentDay: 'payment_day',
-            effectiveDate: 'effective_date',
-            duration: 'duration',
-            agreementDate: 'agreement_date',
-            notes: 'notes',
-            clientSignature: 'client_signature',
-            companyStamp: 'company_stamp',
-            sentAt: 'sent_at',
-            sentVia: 'sent_via',
-            sentTo: 'sent_to',
-            signedAt: 'signed_at',
-            pdfUrl: 'pdf_url'
+            type: 'type', status: 'status', createdByName: 'created_by_name',
+            companyName: 'company_name', companyId: 'company_id',
+            contactName: 'contact_name', contactId: 'contact_id',
+            monthlyAmount: 'monthly_amount', paymentDay: 'payment_day',
+            effectiveDate: 'effective_date', duration: 'duration', agreementDate: 'agreement_date',
+            notes: 'notes', clientSignature: 'client_signature', companyStamp: 'company_stamp',
+            sentAt: 'sent_at', sentVia: 'sent_via', sentTo: 'sent_to',
+            signedAt: 'signed_at', pdfUrl: 'pdf_url'
         };
 
         const jsonFields = {
@@ -254,10 +295,15 @@ const Agreements = {
     },
 
     delete: async (id) => {
-        const result = await pool.query(
-            'DELETE FROM agreements WHERE id = $1 RETURNING id',
-            [id]
-        );
+        if (!usePostgres) {
+            const db = readDB();
+            const index = db.agreements.findIndex(a => a.id === id);
+            if (index === -1) return false;
+            db.agreements.splice(index, 1);
+            writeDB(db);
+            return true;
+        }
+        const result = await pool.query('DELETE FROM agreements WHERE id = $1 RETURNING id', [id]);
         return result.rowCount > 0;
     }
 };
@@ -265,6 +311,15 @@ const Agreements = {
 // Logs operations
 const Logs = {
     getAll: async (filters = {}) => {
+        if (!usePostgres) {
+            const db = readDB();
+            let logs = db.logs || [];
+            if (filters.type) logs = logs.filter(l => l.type === filters.type);
+            if (filters.userId) logs = logs.filter(l => l.userId === filters.userId);
+            if (filters.from) logs = logs.filter(l => new Date(l.timestamp) >= new Date(filters.from));
+            if (filters.to) logs = logs.filter(l => new Date(l.timestamp) <= new Date(filters.to));
+            return logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        }
         let query = 'SELECT * FROM logs WHERE 1=1';
         const values = [];
         let paramIndex = 1;
@@ -287,31 +342,34 @@ const Logs = {
         }
 
         query += ' ORDER BY timestamp DESC';
-
         const result = await pool.query(query, values);
         return result.rows.map(row => toCamelCase(row));
     },
 
     create: async (log) => {
+        if (!usePostgres) {
+            const db = readDB();
+            if (!db.logs) db.logs = [];
+            db.logs.push(log);
+            writeDB(db);
+            return log;
+        }
         const result = await pool.query(
             `INSERT INTO logs (id, timestamp, type, user_id, action, details, platform, ip)
              VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
              RETURNING *`,
-            [
-                log.id,
-                log.timestamp,
-                log.type,
-                log.userId,
-                log.action,
-                JSON.stringify(log.details || {}),
-                log.platform,
-                log.ip
-            ]
+            [log.id, log.timestamp, log.type, log.userId, log.action, JSON.stringify(log.details || {}), log.platform, log.ip]
         );
         return toCamelCase(result.rows[0]);
     },
 
     clear: async () => {
+        if (!usePostgres) {
+            const db = readDB();
+            db.logs = [];
+            writeDB(db);
+            return true;
+        }
         await pool.query('DELETE FROM logs');
         return true;
     }
@@ -320,12 +378,12 @@ const Logs = {
 // Templates operations
 const Templates = {
     get: async (type) => {
-        const result = await pool.query(
-            'SELECT * FROM templates WHERE type = $1',
-            [type]
-        );
+        if (!usePostgres) {
+            const db = readDB();
+            return db.templates?.[type] || null;
+        }
+        const result = await pool.query('SELECT * FROM templates WHERE type = $1', [type]);
         if (!result.rows[0]) return null;
-
         const row = result.rows[0];
         return {
             companyName: row.company_name,
@@ -338,6 +396,13 @@ const Templates = {
     },
 
     update: async (type, template) => {
+        if (!usePostgres) {
+            const db = readDB();
+            if (!db.templates) db.templates = {};
+            db.templates[type] = { ...db.templates[type], ...template };
+            writeDB(db);
+            return db.templates[type];
+        }
         const result = await pool.query(
             `UPDATE templates SET
                 company_name = COALESCE($2, company_name),
@@ -348,19 +413,9 @@ const Templates = {
                 fax = COALESCE($7, fax)
              WHERE type = $1
              RETURNING *`,
-            [
-                type,
-                template.companyName,
-                template.parentCompany,
-                template.companyId,
-                template.address,
-                template.phone,
-                template.fax
-            ]
+            [type, template.companyName, template.parentCompany, template.companyId, template.address, template.phone, template.fax]
         );
-
         if (!result.rows[0]) return null;
-
         const row = result.rows[0];
         return {
             companyName: row.company_name,

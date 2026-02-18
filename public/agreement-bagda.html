@@ -46,22 +46,22 @@
                 <h3 class="mb-md">פרטי הלקוח</h3>
                 <div class="grid grid-2">
                     <div class="form-group">
-                        <label class="form-label" for="companyName">שם החברה / העסק (XXX1)</label>
+                        <label class="form-label" for="companyName">שם החברה / העסק</label>
                         <input type="text" id="companyName" name="companyName" class="form-input"
                                placeholder="שם החברה או העסק" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="companyId">ח.פ / עוסק מורשה (XXX2)</label>
+                        <label class="form-label" for="companyId">ח.פ / עוסק מורשה</label>
                         <input type="text" id="companyId" name="companyId" class="form-input"
                                placeholder="מספר חברה או עוסק" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="contactName">שם איש קשר (XXX3) <span class="text-secondary" style="font-size: 0.85em; font-weight: normal;">(לא חובה)</span></label>
+                        <label class="form-label" for="contactName">שם איש קשר <span class="text-secondary" style="font-size: 0.85em; font-weight: normal;">(לא חובה)</span></label>
                         <input type="text" id="contactName" name="contactName" class="form-input"
                                placeholder="שם פרטי ומשפחה">
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="contactId">ת.ז. (XXX4) <span class="text-secondary" style="font-size: 0.85em; font-weight: normal;">(לא חובה)</span></label>
+                        <label class="form-label" for="contactId">ת.ז. <span class="text-secondary" style="font-size: 0.85em; font-weight: normal;">(לא חובה)</span></label>
                         <input type="text" id="contactId" name="contactId" class="form-input"
                                placeholder="מספר תעודת זהות">
                     </div>
@@ -71,13 +71,13 @@
                 <h3 class="mb-md mt-xl">פרטי ההסכם</h3>
                 <div class="grid grid-2">
                     <div class="form-group">
-                        <label class="form-label" for="monthlyAmount">סכום חודשי בש"ח (XXX5)</label>
+                        <label class="form-label" for="monthlyAmount">סכום חודשי בש"ח</label>
                         <input type="number" id="monthlyAmount" name="monthlyAmount" class="form-input"
                                placeholder="סכום ללא מע״מ" min="0" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="paymentDay">יום תשלום בחודש (XXX6)</label>
-                        <select id="paymentDay" name="paymentDay" class="form-select" required>
+                        <label class="form-label" for="paymentDay">יום תשלום בחודש <span class="text-secondary" style="font-size: 0.85em; font-weight: normal;">(לא חובה)</span></label>
+                        <select id="paymentDay" name="paymentDay" class="form-select">
                             <option value="">בחר יום</option>
                             <option value="1">1</option>
                             <option value="5">5</option>
@@ -88,11 +88,11 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="effectiveDate">תאריך כניסה לתוקף (XXX7)</label>
+                        <label class="form-label" for="effectiveDate">תאריך כניסה לתוקף</label>
                         <input type="date" id="effectiveDate" name="effectiveDate" class="form-input" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="duration">משך תקופה בחודשים (XXX8)</label>
+                        <label class="form-label" for="duration">משך תקופה בחודשים</label>
                         <select id="duration" name="duration" class="form-select" required>
                             <option value="">בחר תקופה</option>
                             <option value="3">3 חודשים</option>
@@ -102,7 +102,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="agreementDate">תאריך ההסכם (XXX9)</label>
+                        <label class="form-label" for="agreementDate">תאריך ההסכם</label>
                         <input type="date" id="agreementDate" name="agreementDate" class="form-input">
                         <span class="form-hint">אם ריק - יהיה תאריך השליחה</span>
                     </div>
@@ -115,47 +115,49 @@
                               placeholder="הערות נוספות להסכם..."></textarea>
                 </div>
 
-                <!-- Services Selection (Optional Accordions) -->
-                <h3 class="mb-md mt-xl">שירותים נבחרים <span class="text-secondary" style="font-size: 0.8em; font-weight: normal;">(לא חובה)</span></h3>
+                <!-- Services Selection (Hidden for now - can be enabled later) -->
+                <div style="display: none;">
+                    <h3 class="mb-md mt-xl">שירותים נבחרים <span class="text-secondary" style="font-size: 0.8em; font-weight: normal;">(לא חובה)</span></h3>
 
-                <details class="accordion">
-                    <summary class="accordion-header">
-                        <span>שירותים מסעיף 2.1 (AIweon - משפיענים)</span>
-                        <svg class="accordion-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="6 9 12 15 18 9"></polyline>
-                        </svg>
-                    </summary>
-                    <div class="accordion-content">
-                        <textarea id="services21" name="services21" class="form-textarea"
-                                  placeholder="פירוט השירותים שנבחרו מסעיף 2.1"></textarea>
-                    </div>
-                </details>
+                    <details class="accordion">
+                        <summary class="accordion-header">
+                            <span>שירותים מסעיף 2.1 (AIweon - משפיענים)</span>
+                            <svg class="accordion-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </summary>
+                        <div class="accordion-content">
+                            <textarea id="services21" name="services21" class="form-textarea"
+                                      placeholder="פירוט השירותים שנבחרו מסעיף 2.1"></textarea>
+                        </div>
+                    </details>
 
-                <details class="accordion">
-                    <summary class="accordion-header">
-                        <span>שירותים מסעיף 2.2 (רשת טיימס)</span>
-                        <svg class="accordion-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="6 9 12 15 18 9"></polyline>
-                        </svg>
-                    </summary>
-                    <div class="accordion-content">
-                        <textarea id="services22" name="services22" class="form-textarea"
-                                  placeholder="פירוט השירותים שנבחרו מסעיף 2.2"></textarea>
-                    </div>
-                </details>
+                    <details class="accordion">
+                        <summary class="accordion-header">
+                            <span>שירותים מסעיף 2.2 (רשת טיימס)</span>
+                            <svg class="accordion-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </summary>
+                        <div class="accordion-content">
+                            <textarea id="services22" name="services22" class="form-textarea"
+                                      placeholder="פירוט השירותים שנבחרו מסעיף 2.2"></textarea>
+                        </div>
+                    </details>
 
-                <details class="accordion">
-                    <summary class="accordion-header">
-                        <span>שירותים מסעיף 2.3 (שירותים נוספים)</span>
-                        <svg class="accordion-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="6 9 12 15 18 9"></polyline>
-                        </svg>
-                    </summary>
-                    <div class="accordion-content">
-                        <textarea id="services23" name="services23" class="form-textarea"
-                                  placeholder="פירוט השירותים שנבחרו מסעיף 2.3"></textarea>
-                    </div>
-                </details>
+                    <details class="accordion">
+                        <summary class="accordion-header">
+                            <span>שירותים מסעיף 2.3 (שירותים נוספים)</span>
+                            <svg class="accordion-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </summary>
+                        <div class="accordion-content">
+                            <textarea id="services23" name="services23" class="form-textarea"
+                                      placeholder="פירוט השירותים שנבחרו מסעיף 2.3"></textarea>
+                        </div>
+                    </details>
+                </div>
 
                 <!-- Submit -->
                 <div class="flex gap-md mt-xl">
@@ -260,7 +262,7 @@
                 AppUtils.showToast('נא למלא את שם החברה וח.פ/עוסק מורשה', 'warning');
                 return false;
             }
-            if (!data.monthlyAmount || !data.paymentDay || !data.effectiveDate || !data.duration) {
+            if (!data.monthlyAmount || !data.effectiveDate || !data.duration) {
                 AppUtils.showToast('נא למלא את כל פרטי ההסכם', 'warning');
                 return false;
             }

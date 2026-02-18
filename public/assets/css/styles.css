@@ -4,6 +4,9 @@
    Colors: Gray, Black, Blue, Green
    =================================== */
 
+/* Google Fonts - Assistant */
+@import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700&display=swap');
+
 /* CSS Variables */
 :root {
     /* Dark Theme Colors */
@@ -61,6 +64,7 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    font-family: 'Assistant', 'Segoe UI', 'Arial', sans-serif;
 }
 
 html {
@@ -69,12 +73,29 @@ html {
 }
 
 body {
-    font-family: 'Segoe UI', 'Arial', sans-serif;
+    font-family: 'Assistant', 'Segoe UI', 'Arial', sans-serif;
     background-color: var(--bg-primary);
     color: var(--text-primary);
     line-height: 1.6;
     direction: rtl;
     min-height: 100vh;
+}
+
+/* Placeholder styling */
+::placeholder {
+    font-family: 'Assistant', 'Segoe UI', 'Arial', sans-serif;
+}
+
+::-webkit-input-placeholder {
+    font-family: 'Assistant', 'Segoe UI', 'Arial', sans-serif;
+}
+
+::-moz-placeholder {
+    font-family: 'Assistant', 'Segoe UI', 'Arial', sans-serif;
+}
+
+:-ms-input-placeholder {
+    font-family: 'Assistant', 'Segoe UI', 'Arial', sans-serif;
 }
 
 /* Typography */
