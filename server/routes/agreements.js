@@ -3,6 +3,7 @@ const { v4: uuidv4 } = require('uuid');
 const { Agreements, Templates } = require('../database');
 const { verifyToken, isAdmin, createLog } = require('../middleware/auth');
 const { sendAgreementEmail, sendSignedNotification } = require('../services/emailService');
+const { signatureLimiter } = require('../middleware/security');
 
 const router = express.Router();
 
@@ -301,8 +302,8 @@ router.post('/:id/send', verifyToken, async (req, res) => {
     }
 });
 
-// Sign agreement (client endpoint - no auth required)
-router.post('/:id/sign', async (req, res) => {
+// Sign agreement (client endpoint - no auth required, rate limited)
+router.post('/:id/sign', signatureLimiter, async (req, res) => {
     try {
         const { signature } = req.body; // Base64 signature image
         const agreementId = req.params.id;

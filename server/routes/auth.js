@@ -3,11 +3,12 @@ const bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
 const { Users } = require('../database');
 const { verifyToken, generateToken, createLog } = require('../middleware/auth');
+const { loginLimiter, blockInProduction } = require('../middleware/security');
 
 const router = express.Router();
 
-// Login
-router.post('/login', async (req, res) => {
+// Login - with rate limiting
+router.post('/login', loginLimiter, async (req, res) => {
     try {
         const { username, password } = req.body;
 
@@ -132,8 +133,8 @@ router.post('/change-password', verifyToken, async (req, res) => {
     }
 });
 
-// Initialize admin user (run once) - GET for easy browser access
-router.get('/init', async (req, res) => {
+// Initialize admin user (run once) - BLOCKED IN PRODUCTION
+router.get('/init', blockInProduction, async (req, res) => {
     try {
         const existingAdmin = await Users.getByUsername('admin');
 

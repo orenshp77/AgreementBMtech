@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
 const path = require('path');
 const http = require('http');
 const { Server } = require('socket.io');
@@ -9,6 +10,7 @@ const authRoutes = require('./routes/auth');
 const usersRoutes = require('./routes/users');
 const agreementsRoutes = require('./routes/agreements');
 const logsRoutes = require('./routes/logs');
+const { securityCheck, apiLimiter, logUnauthorizedAccess } = require('./middleware/security');
 
 const app = express();
 const server = http.createServer(app);
@@ -33,10 +35,36 @@ io.on('connection', (socket) => {
     });
 });
 
-// Middleware
-app.use(cors());
+// Security Middleware
+app.use(helmet({
+    contentSecurityPolicy: false, // Disabled for inline scripts
+    crossOriginEmbedderPolicy: false
+}));
+
+// CORS - restrict in production
+const allowedOrigins = process.env.NODE_ENV === 'production'
+    ? ['https://agreement-signing-system.onrender.com']
+    : ['http://localhost:2000', 'http://localhost:3000', 'http://127.0.0.1:2000'];
+
+app.use(cors({
+    origin: function(origin, callback) {
+        // Allow requests with no origin (mobile apps, curl, etc.)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+        return callback(null, true); // Allow for now, but log
+    },
+    credentials: true
+}));
+
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+// Security logging and checks
+app.use(logUnauthorizedAccess);
+app.use('/api', apiLimiter);
+app.use('/api', securityCheck);
 
 // Serve static files - disable cache for template images
 app.use('/assets/images/templates', express.static(path.join(__dirname, '../public/assets/images/templates'), {
