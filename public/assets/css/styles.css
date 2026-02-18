@@ -612,6 +612,20 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     margin-bottom: 0;
 }
 
+/* BMaTek card - blue theme */
+.agreement-type-card.bmatek-card {
+    border-color: var(--accent-blue);
+}
+
+.agreement-type-card.bmatek-card:hover {
+    border-color: var(--accent-blue-hover);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+}
+
+.agreement-type-card.bmatek-card h3 {
+    color: var(--accent-blue);
+}
+
 /* Bagda card - green theme */
 .agreement-type-card.bagda-card {
     border-color: var(--accent-green);
@@ -623,10 +637,6 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 }
 
 .agreement-type-card.bagda-card h3 {
-    color: var(--accent-green);
-}
-
-.agreement-type-card.bagda-card p {
     color: var(--accent-green);
 }
 
