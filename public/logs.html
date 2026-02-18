@@ -210,8 +210,13 @@
                     <td>
                         ${log.details ? `
                             <button class="btn btn-secondary btn-sm" onclick='showDetails(${JSON.stringify(log.details).replace(/'/g, "\\'")})'>
-                                הצג פרטים
+                                הצג
                             </button>
+                            ${log.type === 'ERROR' ? `
+                                <button class="btn btn-danger btn-sm" onclick='copyForClaude(${JSON.stringify(log).replace(/'/g, "\\'")})' title="העתק לקלוד">
+                                    📋 AI
+                                </button>
+                            ` : ''}
                         ` : '-'}
                     </td>
                     <td class="text-sm">
@@ -267,10 +272,68 @@
         }
 
         function showDetails(details) {
+            const errorText = generateClaudeText({ details, type: 'ERROR', action: 'Error details' });
             Swal.fire({
                 title: 'פרטים נוספים',
-                html: `<pre style="text-align: left; direction: ltr; overflow: auto; max-height: 300px; background: var(--bg-secondary); padding: 10px; border-radius: 8px;">${JSON.stringify(details, null, 2)}</pre>`,
+                html: `
+                    <pre style="text-align: left; direction: ltr; overflow: auto; max-height: 300px; background: var(--bg-secondary); padding: 10px; border-radius: 8px;">${JSON.stringify(details, null, 2)}</pre>
+                    <button class="btn btn-danger mt-md" onclick="copyToClipboard(\`${errorText.replace(/`/g, '\\`').replace(/\\/g, '\\\\')}\`)">
+                        📋 העתק את הקוד הזה ל-AI לתיקון
+                    </button>
+                `,
                 width: 600
+            });
+        }
+
+        function generateClaudeText(log) {
+            const timestamp = log.timestamp ? new Date(log.timestamp).toISOString() : new Date().toISOString();
+            const details = log.details || {};
+            const errorMsg = details.error || 'Unknown error';
+
+            return `=== שגיאה במערכת הסכמים ===
+תאריך: ${timestamp}
+פעולה: ${log.action || 'Error creating agreement'}
+Endpoint: ${details.endpoint || 'POST /api/agreements'}
+User: ${log.userId || 'unknown'}
+IP: ${details.ip || 'unknown'}
+
+=== הודעת שגיאה ===
+${errorMsg}
+
+=== Stack Trace ===
+לא זמין
+
+=== פרטים נוספים ===
+${JSON.stringify(details, null, 2)}
+
+=== הוראות ל-AI ===
+אנא נתח את השגיאה הזו ותן פתרון.
+קבצים רלוונטיים במערכת:
+- server/server.js - שרת ראשי
+- server/routes/agreements.js - ניהול הסכמים
+- server/routes/auth.js - אימות
+- server/routes/users.js - ניהול משתמשים
+- server/middleware/auth.js - middleware אימות
+- server/database/index.js - פעולות מסד נתונים`;
+        }
+
+        function copyForClaude(log) {
+            const text = generateClaudeText(log);
+            copyToClipboard(text);
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                AppUtils.showToast('הועתק! הדבק בקלוד לתיקון', 'success');
+            }).catch(() => {
+                // Fallback
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                AppUtils.showToast('הועתק! הדבק בקלוד לתיקון', 'success');
             });
         }
 
