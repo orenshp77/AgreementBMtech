@@ -1,5 +1,6 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 const { Users } = require('../database');
 const { verifyToken, isAdmin, createLog } = require('../middleware/auth');
@@ -70,7 +71,7 @@ router.post('/', verifyToken, isAdmin, async (req, res) => {
         const { fullName, phone, username, password, role } = req.body;
 
         // Validation
-        if (!fullName || !phone || !username || !password) {
+        if (!fullName || !username || !password) {
             return res.status(400).json({
                 success: false,
                 message: 'נא למלא את כל השדות הנדרשים'
@@ -183,6 +184,63 @@ router.put('/:id', verifyToken, async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'שגיאה בעדכון משתמש'
+        });
+    }
+});
+
+// Impersonate user (admin only) - login as another user
+router.post('/:id/impersonate', verifyToken, isAdmin, async (req, res) => {
+    try {
+        const userId = req.params.id;
+
+        const user = await Users.getById(userId);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'משתמש לא נמצא'
+            });
+        }
+
+        // Cannot impersonate admin
+        if (user.role === 'admin') {
+            return res.status(403).json({
+                success: false,
+                message: 'לא ניתן להיכנס כמנהל אחר'
+            });
+        }
+
+        // Create token for the target user
+        const token = jwt.sign(
+            { id: user.id, username: user.username, role: user.role },
+            process.env.JWT_SECRET || 'your-secret-key',
+            { expiresIn: '24h' }
+        );
+
+        await createLog('INFO', req.user.id, 'Admin impersonated user', {
+            targetUserId: userId,
+            targetUsername: user.username
+        }, req);
+
+        res.json({
+            success: true,
+            message: 'כניסה כמשתמש בוצעה בהצלחה',
+            data: {
+                token,
+                user: {
+                    id: user.id,
+                    fullName: user.fullName,
+                    username: user.username,
+                    role: user.role
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error('Impersonate user error:', error);
+        await createLog('ERROR', req.user.id, 'Error impersonating user', { error: error.message }, req);
+        res.status(500).json({
+            success: false,
+            message: 'שגיאה בכניסה כמשתמש'
         });
     }
 });

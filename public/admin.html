@@ -51,7 +51,6 @@
                         <tr>
                             <th>שם מלא</th>
                             <th>שם משתמש</th>
-                            <th>טלפון</th>
                             <th>תפקיד</th>
                             <th>תאריך יצירה</th>
                             <th>פעולות</th>
@@ -91,7 +90,7 @@
                 if (users.length === 0) {
                     tbody.innerHTML = `
                         <tr>
-                            <td colspan="6" class="text-center text-muted p-lg">אין משתמשים</td>
+                            <td colspan="5" class="text-center text-muted p-lg">אין משתמשים</td>
                         </tr>
                     `;
                 } else {
@@ -99,7 +98,6 @@
                         <tr>
                             <td><strong>${user.fullName}</strong></td>
                             <td>${user.username}</td>
-                            <td>${user.phone}</td>
                             <td>
                                 <span class="badge ${user.role === 'admin' ? 'badge-signed' : 'badge-sent'}">
                                     ${user.role === 'admin' ? 'מנהל' : 'משתמש'}
@@ -114,6 +112,9 @@
                                     ${user.role !== 'admin' ? `
                                         <button class="btn btn-danger btn-sm" onclick="deleteUser('${user.id}', '${user.fullName}')">
                                             מחק
+                                        </button>
+                                        <button class="btn btn-primary btn-sm" onclick="loginAsUser('${user.id}', '${user.fullName}')" title="כניסה כמשתמש">
+                                            🔑 כניסה
                                         </button>
                                     ` : ''}
                                 </div>
@@ -140,10 +141,6 @@
                             <input type="text" id="swal-fullName" class="form-input" placeholder="שם מלא">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">טלפון</label>
-                            <input type="tel" id="swal-phone" class="form-input" placeholder="05XXXXXXXX">
-                        </div>
-                        <div class="form-group">
                             <label class="form-label">שם משתמש</label>
                             <input type="text" id="swal-username" class="form-input" placeholder="שם משתמש להתחברות">
                         </div>
@@ -165,17 +162,16 @@
                 cancelButtonText: 'ביטול',
                 preConfirm: () => {
                     const fullName = document.getElementById('swal-fullName').value.trim();
-                    const phone = document.getElementById('swal-phone').value.trim();
                     const username = document.getElementById('swal-username').value.trim();
                     const password = document.getElementById('swal-password').value;
                     const role = document.getElementById('swal-role').value;
 
-                    if (!fullName || !phone || !username || !password) {
+                    if (!fullName || !username || !password) {
                         Swal.showValidationMessage('נא למלא את כל השדות');
                         return false;
                     }
 
-                    return { fullName, phone, username, password, role };
+                    return { fullName, username, password, role };
                 }
             });
 
@@ -224,10 +220,6 @@
                                 <input type="text" id="swal-fullName" class="form-input" value="${user.fullName}">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">טלפון</label>
-                                <input type="tel" id="swal-phone" class="form-input" value="${user.phone}">
-                            </div>
-                            <div class="form-group">
                                 <label class="form-label">שם משתמש</label>
                                 <input type="text" id="swal-username" class="form-input" value="${user.username}">
                             </div>
@@ -249,17 +241,16 @@
                     cancelButtonText: 'ביטול',
                     preConfirm: () => {
                         const fullName = document.getElementById('swal-fullName').value.trim();
-                        const phone = document.getElementById('swal-phone').value.trim();
                         const username = document.getElementById('swal-username').value.trim();
                         const password = document.getElementById('swal-password').value;
                         const role = document.getElementById('swal-role').value;
 
-                        if (!fullName || !phone || !username) {
+                        if (!fullName || !username) {
                             Swal.showValidationMessage('נא למלא את כל השדות');
                             return false;
                         }
 
-                        const data = { fullName, phone, username, role };
+                        const data = { fullName, username, role };
                         if (password) data.password = password;
                         return data;
                     }
@@ -295,6 +286,52 @@
                 AppUtils.hideLoader();
                 AppUtils.showToast('המשתמש נמחק בהצלחה', 'success');
                 loadUsers();
+            } catch (error) {
+                AppUtils.hideLoader();
+                AppUtils.showError(error.message);
+            }
+        }
+
+        async function loginAsUser(userId, userName) {
+            const confirmed = await AppUtils.showConfirm(
+                'כניסה כמשתמש',
+                `האם אתה רוצה להיכנס כ-"${userName}"? תועבר ללוח הבקרה שלו.`,
+                'כניסה',
+                'ביטול'
+            );
+
+            if (!confirmed) return;
+
+            try {
+                AppUtils.showLoader('נכנס כמשתמש...');
+                const response = await fetch(`/api/users/${userId}/impersonate`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${AppUtils.getToken()}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+
+                if (!result.success) {
+                    throw new Error(result.message);
+                }
+
+                // Save original admin token for returning later
+                localStorage.setItem('adminToken', AppUtils.getToken());
+                localStorage.setItem('adminUser', localStorage.getItem('user'));
+
+                // Set new user token
+                localStorage.setItem('token', result.data.token);
+                localStorage.setItem('user', JSON.stringify(result.data.user));
+
+                AppUtils.hideLoader();
+                AppUtils.showToast(`נכנסת כ-${userName}`, 'success');
+
+                // Redirect to dashboard
+                setTimeout(() => window.location.href = '/dashboard', 500);
+
             } catch (error) {
                 AppUtils.hideLoader();
                 AppUtils.showError(error.message);
