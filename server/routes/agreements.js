@@ -109,7 +109,7 @@ router.post('/', verifyToken, async (req, res) => {
 
             // Agreement details
             monthlyAmount: Number(monthlyAmount),
-            paymentDay: paymentDay ? Number(paymentDay) : '',
+            paymentDay: paymentDay ? Number(paymentDay) : null,
             effectiveDate,
             duration: Number(duration),
             agreementDate: agreementDate || new Date().toISOString().split('T')[0],
