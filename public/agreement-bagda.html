@@ -92,8 +92,8 @@
                         <input type="date" id="effectiveDate" name="effectiveDate" class="form-input" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="duration">משך תקופה בחודשים <span class="text-secondary" style="font-size: 0.85em; font-weight: normal;">(לא חובה)</span></label>
-                        <select id="duration" name="duration" class="form-select">
+                        <label class="form-label" for="duration">משך תקופה בחודשים</label>
+                        <select id="duration" name="duration" class="form-select" required>
                             <option value="">בחר תקופה</option>
                             <option value="3">3 חודשים</option>
                             <option value="6">6 חודשים</option>
@@ -262,7 +262,7 @@
                 AppUtils.showToast('נא למלא את שם החברה וח.פ/עוסק מורשה', 'warning');
                 return false;
             }
-            if (!data.monthlyAmount || !data.effectiveDate) {
+            if (!data.monthlyAmount || !data.effectiveDate || !data.duration) {
                 AppUtils.showToast('נא למלא את כל פרטי ההסכם', 'warning');
                 return false;
             }
