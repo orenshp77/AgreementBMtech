@@ -84,7 +84,7 @@ router.post('/', verifyToken, async (req, res) => {
             });
         }
 
-        if (!monthlyAmount || !paymentDay || !effectiveDate || !duration) {
+        if (!monthlyAmount || !effectiveDate || !duration) {
             return res.status(400).json({
                 success: false,
                 message: 'נא למלא את כל פרטי ההסכם'
@@ -109,7 +109,7 @@ router.post('/', verifyToken, async (req, res) => {
 
             // Agreement details
             monthlyAmount: Number(monthlyAmount),
-            paymentDay: Number(paymentDay),
+            paymentDay: paymentDay ? Number(paymentDay) : '',
             effectiveDate,
             duration: Number(duration),
             agreementDate: agreementDate || new Date().toISOString().split('T')[0],
