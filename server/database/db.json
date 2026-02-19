@@ -86,7 +86,8 @@
       "signedAt": null,
       "pdfUrl": null,
       "createdAt": "2026-02-18T11:04:25.612Z",
-      "updatedAt": "2026-02-18T11:04:25.612Z"
+      "updatedAt": "2026-02-18T11:04:25.612Z",
+      "deletedAt": "2026-02-19T10:07:27.665Z"
     }
   ],
   "logs": [
@@ -1124,6 +1125,56 @@
         "clientName": "אורן"
       },
       "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "e535cdb8-0ce2-43c7-bc88-23667c34e39c",
+      "timestamp": "2026-02-19T10:06:18.715Z",
+      "type": "AUTH",
+      "userId": null,
+      "action": "Invalid token",
+      "details": {
+        "error": "jwt expired"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "abb541e8-2ece-4ad5-8a75-49e96e05fb8f",
+      "timestamp": "2026-02-19T10:06:18.716Z",
+      "type": "SECURITY",
+      "userId": null,
+      "action": "Unauthorized access attempt",
+      "details": {
+        "type": "UNAUTHORIZED",
+        "path": "/",
+        "method": "GET",
+        "statusCode": 401
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "0c5c424b-9af0-4df0-9e48-c46002d59138",
+      "timestamp": "2026-02-19T10:07:11.330Z",
+      "type": "AUTH",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Login successful",
+      "details": {},
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "cfd440da-fb07-40ce-bff6-af10e5bfcb8d",
+      "timestamp": "2026-02-19T10:07:27.666Z",
+      "type": "INFO",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Agreement moved to recycle bin",
+      "details": {
+        "agreementId": "28d74948-e3af-4c59-aeaa-8ea41685d90a",
+        "clientName": "אורן"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
       "ip": "::1"
     }
   ],

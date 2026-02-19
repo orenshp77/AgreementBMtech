@@ -40,8 +40,18 @@ CREATE TABLE IF NOT EXISTS agreements (
     pdf_url TEXT,
     drive_backup JSONB,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP DEFAULT NULL
 );
+
+-- Add deleted_at column if it doesn't exist (for existing databases)
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                   WHERE table_name = 'agreements' AND column_name = 'deleted_at') THEN
+        ALTER TABLE agreements ADD COLUMN deleted_at TIMESTAMP DEFAULT NULL;
+    END IF;
+END $$;
 
 -- Logs table
 CREATE TABLE IF NOT EXISTS logs (

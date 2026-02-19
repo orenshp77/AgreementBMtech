@@ -27,6 +27,115 @@ router.get('/', verifyToken, async (req, res) => {
     }
 });
 
+// ============== RECYCLE BIN ROUTES (Admin Only) - Must be before /:id ==============
+
+// Get all deleted agreements (recycle bin)
+router.get('/recycle-bin', verifyToken, isAdmin, async (req, res) => {
+    try {
+        const deletedAgreements = await Agreements.getDeleted();
+        res.json({
+            success: true,
+            data: deletedAgreements
+        });
+    } catch (error) {
+        console.error('Get recycle bin error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'שגיאה בטעינת סל המחזור'
+        });
+    }
+});
+
+// Empty entire recycle bin
+router.delete('/recycle-bin', verifyToken, isAdmin, async (req, res) => {
+    try {
+        await Agreements.emptyRecycleBin();
+        await createLog('INFO', req.user.id, 'Recycle bin emptied', {}, req);
+        res.json({
+            success: true,
+            message: 'סל המחזור רוקן בהצלחה'
+        });
+    } catch (error) {
+        console.error('Empty recycle bin error:', error);
+        await createLog('ERROR', req.user.id, 'Error emptying recycle bin', { error: error.message }, req);
+        res.status(500).json({
+            success: false,
+            message: 'שגיאה בריקון סל המחזור'
+        });
+    }
+});
+
+// Restore agreement from recycle bin
+router.post('/recycle-bin/:id/restore', verifyToken, isAdmin, async (req, res) => {
+    try {
+        const agreementId = req.params.id;
+        const agreement = await Agreements.restore(agreementId);
+
+        if (!agreement) {
+            return res.status(404).json({
+                success: false,
+                message: 'הסכם לא נמצא בסל המחזור'
+            });
+        }
+
+        await createLog('INFO', req.user.id, 'Agreement restored from recycle bin', {
+            agreementId,
+            clientName: agreement.companyName
+        }, req);
+
+        const io = req.app.get('io');
+        if (io) {
+            io.emit('agreement:created', agreement);
+        }
+
+        res.json({
+            success: true,
+            message: 'הסכם שוחזר בהצלחה',
+            data: agreement
+        });
+
+    } catch (error) {
+        console.error('Restore agreement error:', error);
+        await createLog('ERROR', req.user.id, 'Error restoring agreement', { error: error.message }, req);
+        res.status(500).json({
+            success: false,
+            message: 'שגיאה בשחזור הסכם'
+        });
+    }
+});
+
+// Permanently delete agreement from recycle bin
+router.delete('/recycle-bin/:id', verifyToken, isAdmin, async (req, res) => {
+    try {
+        const agreementId = req.params.id;
+        const deleted = await Agreements.permanentDelete(agreementId);
+
+        if (!deleted) {
+            return res.status(404).json({
+                success: false,
+                message: 'הסכם לא נמצא'
+            });
+        }
+
+        await createLog('INFO', req.user.id, 'Agreement permanently deleted', {
+            agreementId
+        }, req);
+
+        res.json({
+            success: true,
+            message: 'הסכם נמחק לצמיתות'
+        });
+
+    } catch (error) {
+        console.error('Permanent delete error:', error);
+        await createLog('ERROR', req.user.id, 'Error permanently deleting agreement', { error: error.message }, req);
+        res.status(500).json({
+            success: false,
+            message: 'שגיאה במחיקה לצמיתות'
+        });
+    }
+});
+
 // Get single agreement (for viewing/signing)
 router.get('/:id', async (req, res) => {
     try {
@@ -418,119 +527,6 @@ router.delete('/:id', verifyToken, async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'שגיאה במחיקת הסכם'
-        });
-    }
-});
-
-// ============== RECYCLE BIN ROUTES (Admin Only) ==============
-
-// Get all deleted agreements (recycle bin)
-router.get('/recycle-bin', verifyToken, isAdmin, async (req, res) => {
-    try {
-        const deletedAgreements = await Agreements.getDeleted();
-        res.json({
-            success: true,
-            data: deletedAgreements
-        });
-    } catch (error) {
-        console.error('Get recycle bin error:', error);
-        res.status(500).json({
-            success: false,
-            message: 'שגיאה בטעינת סל המחזור'
-        });
-    }
-});
-
-// Restore agreement from recycle bin
-router.post('/recycle-bin/:id/restore', verifyToken, isAdmin, async (req, res) => {
-    try {
-        const agreementId = req.params.id;
-        const agreement = await Agreements.restore(agreementId);
-
-        if (!agreement) {
-            return res.status(404).json({
-                success: false,
-                message: 'הסכם לא נמצא בסל המחזור'
-            });
-        }
-
-        await createLog('INFO', req.user.id, 'Agreement restored from recycle bin', {
-            agreementId,
-            clientName: agreement.companyName
-        }, req);
-
-        // Emit real-time update
-        const io = req.app.get('io');
-        if (io) {
-            io.emit('agreement:created', agreement);
-        }
-
-        res.json({
-            success: true,
-            message: 'הסכם שוחזר בהצלחה',
-            data: agreement
-        });
-
-    } catch (error) {
-        console.error('Restore agreement error:', error);
-        await createLog('ERROR', req.user.id, 'Error restoring agreement', { error: error.message }, req);
-        res.status(500).json({
-            success: false,
-            message: 'שגיאה בשחזור הסכם'
-        });
-    }
-});
-
-// Permanently delete agreement from recycle bin
-router.delete('/recycle-bin/:id', verifyToken, isAdmin, async (req, res) => {
-    try {
-        const agreementId = req.params.id;
-        const deleted = await Agreements.permanentDelete(agreementId);
-
-        if (!deleted) {
-            return res.status(404).json({
-                success: false,
-                message: 'הסכם לא נמצא'
-            });
-        }
-
-        await createLog('INFO', req.user.id, 'Agreement permanently deleted', {
-            agreementId
-        }, req);
-
-        res.json({
-            success: true,
-            message: 'הסכם נמחק לצמיתות'
-        });
-
-    } catch (error) {
-        console.error('Permanent delete error:', error);
-        await createLog('ERROR', req.user.id, 'Error permanently deleting agreement', { error: error.message }, req);
-        res.status(500).json({
-            success: false,
-            message: 'שגיאה במחיקה לצמיתות'
-        });
-    }
-});
-
-// Empty entire recycle bin
-router.delete('/recycle-bin', verifyToken, isAdmin, async (req, res) => {
-    try {
-        await Agreements.emptyRecycleBin();
-
-        await createLog('INFO', req.user.id, 'Recycle bin emptied', {}, req);
-
-        res.json({
-            success: true,
-            message: 'סל המחזור רוקן בהצלחה'
-        });
-
-    } catch (error) {
-        console.error('Empty recycle bin error:', error);
-        await createLog('ERROR', req.user.id, 'Error emptying recycle bin', { error: error.message }, req);
-        res.status(500).json({
-            success: false,
-            message: 'שגיאה בריקון סל המחזור'
         });
     }
 });
