@@ -174,9 +174,24 @@ const Agreements = {
     getAll: async () => {
         if (!usePostgres) {
             const db = readDB();
-            return db.agreements.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            // Filter out deleted items
+            return db.agreements
+                .filter(a => !a.deletedAt)
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         }
-        const result = await pool.query('SELECT * FROM agreements ORDER BY created_at DESC');
+        const result = await pool.query('SELECT * FROM agreements WHERE deleted_at IS NULL ORDER BY created_at DESC');
+        return result.rows.map(row => toCamelCase(row));
+    },
+
+    // Get deleted items (recycle bin)
+    getDeleted: async () => {
+        if (!usePostgres) {
+            const db = readDB();
+            return db.agreements
+                .filter(a => a.deletedAt)
+                .sort((a, b) => new Date(b.deletedAt) - new Date(a.deletedAt));
+        }
+        const result = await pool.query('SELECT * FROM agreements WHERE deleted_at IS NOT NULL ORDER BY deleted_at DESC');
         return result.rows.map(row => toCamelCase(row));
     },
 
@@ -294,7 +309,42 @@ const Agreements = {
         return result.rows[0] ? toCamelCase(result.rows[0]) : null;
     },
 
+    // Soft delete - move to recycle bin
     delete: async (id) => {
+        if (!usePostgres) {
+            const db = readDB();
+            const index = db.agreements.findIndex(a => a.id === id);
+            if (index === -1) return false;
+            db.agreements[index].deletedAt = new Date().toISOString();
+            writeDB(db);
+            return true;
+        }
+        const result = await pool.query(
+            'UPDATE agreements SET deleted_at = $1 WHERE id = $2 RETURNING id',
+            [new Date().toISOString(), id]
+        );
+        return result.rowCount > 0;
+    },
+
+    // Restore from recycle bin
+    restore: async (id) => {
+        if (!usePostgres) {
+            const db = readDB();
+            const index = db.agreements.findIndex(a => a.id === id);
+            if (index === -1) return false;
+            delete db.agreements[index].deletedAt;
+            writeDB(db);
+            return db.agreements[index];
+        }
+        const result = await pool.query(
+            'UPDATE agreements SET deleted_at = NULL WHERE id = $1 RETURNING *',
+            [id]
+        );
+        return result.rows[0] ? toCamelCase(result.rows[0]) : null;
+    },
+
+    // Permanent delete (empty from recycle bin)
+    permanentDelete: async (id) => {
         if (!usePostgres) {
             const db = readDB();
             const index = db.agreements.findIndex(a => a.id === id);
@@ -305,6 +355,18 @@ const Agreements = {
         }
         const result = await pool.query('DELETE FROM agreements WHERE id = $1 RETURNING id', [id]);
         return result.rowCount > 0;
+    },
+
+    // Empty entire recycle bin
+    emptyRecycleBin: async () => {
+        if (!usePostgres) {
+            const db = readDB();
+            db.agreements = db.agreements.filter(a => !a.deletedAt);
+            writeDB(db);
+            return true;
+        }
+        await pool.query('DELETE FROM agreements WHERE deleted_at IS NOT NULL');
+        return true;
     }
 };
 

@@ -130,6 +130,10 @@ app.get('/editor', (req, res) => {
     res.sendFile(path.join(__dirname, '../public/editor.html'));
 });
 
+app.get('/recycle-bin', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/recycle-bin.html'));
+});
+
 
 // Error handling middleware
 app.use((err, req, res, next) => {

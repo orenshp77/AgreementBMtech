@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>סל מחזור - מערכת הסכמים</title>
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <div class="loader-overlay">
+        <div class="flex flex-col items-center">
+            <div class="loader"></div>
+            <p class="loader-text">טוען...</p>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-content">
+                <div class="navbar-brand">
+                    <img src="/assets/images/33.jpg" alt="Logo" class="navbar-logo" onerror="this.style.display='none'">
+                    <span class="navbar-title">סל מחזור</span>
+                </div>
+                <div class="navbar-menu">
+                    <a href="/dashboard" class="navbar-link">ראשי</a>
+                    <a href="/admin" class="navbar-link">ניהול משתמשים</a>
+                    <a href="/logs" class="navbar-link">לוגים</a>
+                    <a href="/recycle-bin" class="navbar-link active">סל מחזור</a>
+                    <span class="text-secondary">|</span>
+                    <span id="userName" class="text-secondary"></span>
+                    <a href="#" id="logoutBtn" class="navbar-link">התנתק</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container" style="padding-top: 2rem; padding-bottom: 2rem;">
+        <div class="flex justify-between items-center mb-lg">
+            <h1>סל מחזור</h1>
+            <button class="btn btn-danger" onclick="emptyRecycleBin()" id="emptyBtn" style="display: none;">
+                רוקן סל מחזור
+            </button>
+        </div>
+
+        <div class="card">
+            <div class="card-header flex justify-between items-center">
+                <h2 style="margin: 0;">הסכמים שנמחקו</h2>
+                <button class="btn btn-secondary btn-sm" onclick="loadDeletedAgreements()">
+                    רענן
+                </button>
+            </div>
+
+            <div class="table-container">
+                <table class="table" id="recycleBinTable">
+                    <thead>
+                        <tr>
+                            <th>תאריך מחיקה</th>
+                            <th>לקוח</th>
+                            <th>סוג</th>
+                            <th>סכום חודשי</th>
+                            <th>סטטוס לפני מחיקה</th>
+                            <th>נוצר ע"י</th>
+                            <th>פעולות</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recycleBinBody">
+                        <tr>
+                            <td colspan="7" class="text-center text-muted p-lg">טוען...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card mt-lg" style="background: var(--bg-tertiary); border: 1px dashed var(--border-color);">
+            <div style="padding: 1rem; text-align: center;">
+                <p class="text-muted">
+                    הסכמים שנמחקו נשמרים בסל המחזור עד לריקון ידני.<br>
+                    ניתן לשחזר הסכמים או למחוק אותם לצמיתות.
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <script src="/assets/js/main.js"></script>
+    <script>
+        // Check auth & admin only
+        if (!AppUtils.requireAuth()) {
+            // Will redirect
+        } else if (!AppUtils.isAdmin()) {
+            AppUtils.showError('הגישה מותרת למנהלים בלבד');
+            setTimeout(() => window.location.href = '/dashboard', 2000);
+        }
+
+        let deletedAgreements = [];
+
+        // Load on page load
+        document.addEventListener('DOMContentLoaded', loadDeletedAgreements);
+
+        async function loadDeletedAgreements() {
+            try {
+                AppUtils.showLoader('טוען סל מחזור...');
+
+                const response = await fetch('/api/agreements/recycle-bin', {
+                    headers: {
+                        'Authorization': `Bearer ${AppUtils.getToken()}`
+                    }
+                });
+
+                const result = await response.json();
+                AppUtils.hideLoader();
+
+                if (!result.success) {
+                    throw new Error(result.message);
+                }
+
+                deletedAgreements = result.data;
+                renderTable();
+
+                // Show/hide empty button
+                document.getElementById('emptyBtn').style.display =
+                    deletedAgreements.length > 0 ? 'block' : 'none';
+
+            } catch (error) {
+                AppUtils.hideLoader();
+                AppUtils.showError(error.message);
+            }
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('recycleBinBody');
+
+            if (deletedAgreements.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center text-muted p-lg">
+                            סל המחזור ריק
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = deletedAgreements.map(agreement => `
+                <tr>
+                    <td>${formatDate(agreement.deletedAt)}</td>
+                    <td>
+                        <strong>${agreement.companyName}</strong><br>
+                        <span class="text-sm text-muted">${agreement.contactName || ''}</span>
+                    </td>
+                    <td>${agreement.type === 'bmatek' ? 'במטק' : 'בגדא'}</td>
+                    <td>${AppUtils.formatCurrency(agreement.monthlyAmount)}</td>
+                    <td>${AppUtils.getStatusBadge(agreement.status)}</td>
+                    <td>
+                        <span class="text-sm">${agreement.createdByName || '-'}</span>
+                    </td>
+                    <td>
+                        <div class="flex gap-sm">
+                            <button class="btn btn-success btn-sm" onclick="restoreAgreement('${agreement.id}')">
+                                שחזר
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="permanentDelete('${agreement.id}')">
+                                מחק לצמיתות
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            return date.toLocaleString('he-IL');
+        }
+
+        async function restoreAgreement(id) {
+            const confirmed = await AppUtils.showConfirm(
+                'שחזור הסכם',
+                'האם לשחזר את ההסכם?',
+                'שחזר',
+                'ביטול'
+            );
+
+            if (!confirmed) return;
+
+            try {
+                AppUtils.showLoader('משחזר...');
+
+                const response = await fetch(`/api/agreements/recycle-bin/${id}/restore`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${AppUtils.getToken()}`
+                    }
+                });
+
+                const result = await response.json();
+                AppUtils.hideLoader();
+
+                if (!result.success) {
+                    throw new Error(result.message);
+                }
+
+                AppUtils.showToast('הסכם שוחזר בהצלחה', 'success');
+                loadDeletedAgreements();
+
+            } catch (error) {
+                AppUtils.hideLoader();
+                AppUtils.showError(error.message);
+            }
+        }
+
+        async function permanentDelete(id) {
+            const confirmed = await AppUtils.showConfirm(
+                'מחיקה לצמיתות',
+                'האם למחוק את ההסכם לצמיתות? פעולה זו בלתי הפיכה!',
+                'מחק לצמיתות',
+                'ביטול'
+            );
+
+            if (!confirmed) return;
+
+            try {
+                AppUtils.showLoader('מוחק...');
+
+                const response = await fetch(`/api/agreements/recycle-bin/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${AppUtils.getToken()}`
+                    }
+                });
+
+                const result = await response.json();
+                AppUtils.hideLoader();
+
+                if (!result.success) {
+                    throw new Error(result.message);
+                }
+
+                AppUtils.showToast('הסכם נמחק לצמיתות', 'success');
+                loadDeletedAgreements();
+
+            } catch (error) {
+                AppUtils.hideLoader();
+                AppUtils.showError(error.message);
+            }
+        }
+
+        async function emptyRecycleBin() {
+            const confirmed = await AppUtils.showConfirm(
+                'ריקון סל המחזור',
+                `האם לרוקן את סל המחזור? ${deletedAgreements.length} הסכמים יימחקו לצמיתות!`,
+                'רוקן סל',
+                'ביטול'
+            );
+
+            if (!confirmed) return;
+
+            try {
+                AppUtils.showLoader('מרוקן סל מחזור...');
+
+                const response = await fetch('/api/agreements/recycle-bin', {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${AppUtils.getToken()}`
+                    }
+                });
+
+                const result = await response.json();
+                AppUtils.hideLoader();
+
+                if (!result.success) {
+                    throw new Error(result.message);
+                }
+
+                AppUtils.showToast('סל המחזור רוקן בהצלחה', 'success');
+                loadDeletedAgreements();
+
+            } catch (error) {
+                AppUtils.hideLoader();
+                AppUtils.showError(error.message);
+            }
+        }
+    </script>
+</body>
+</html>
