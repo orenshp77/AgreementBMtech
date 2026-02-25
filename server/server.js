@@ -79,6 +79,39 @@ app.use('/assets/images/templates', express.static(path.join(__dirname, '../publ
 app.use(express.static(path.join(__dirname, '../public')));
 app.use('/assets', express.static(path.join(__dirname, '../public/assets')));
 
+// Health check endpoint - for external ping services to keep server awake
+app.get('/health', (req, res) => {
+    res.json({
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime()
+    });
+});
+
+// Client-side error reporting endpoint
+app.post('/api/client-error', async (req, res) => {
+    const { sendErrorNotification } = require('./services/emailService');
+    const { error, stack, page, userAgent, timestamp } = req.body;
+
+    console.error('Client-side error:', error);
+
+    // Send notification for client errors
+    await sendErrorNotification({
+        error: `[Client Error] ${error}`,
+        stack: stack || 'לא זמין',
+        action: 'Client-side error',
+        details: { page, userAgent },
+        endpoint: page,
+        method: 'CLIENT',
+        userId: null,
+        timestamp: timestamp || new Date().toISOString(),
+        ip: req.ip || req.connection?.remoteAddress,
+        userAgent
+    });
+
+    res.json({ success: true, message: 'Error reported' });
+});
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', usersRoutes);
@@ -157,6 +190,27 @@ server.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`📁 Environment: ${process.env.NODE_ENV || 'development'}`);
     console.log(`🔌 Socket.IO enabled for real-time updates`);
+
+    // Self-ping to keep server awake on Render free tier (every 14 minutes)
+    if (process.env.NODE_ENV === 'production') {
+        const PING_INTERVAL = 14 * 60 * 1000; // 14 minutes
+        const BASE_URL = process.env.BASE_URL || 'https://agreement-signing-system.onrender.com';
+
+        setInterval(async () => {
+            try {
+                const https = require('https');
+                https.get(`${BASE_URL}/health`, (res) => {
+                    console.log(`[Keep-Alive] Ping successful: ${res.statusCode}`);
+                }).on('error', (err) => {
+                    console.error('[Keep-Alive] Ping failed:', err.message);
+                });
+            } catch (error) {
+                console.error('[Keep-Alive] Error:', error.message);
+            }
+        }, PING_INTERVAL);
+
+        console.log(`⏰ Keep-alive ping enabled (every 14 minutes)`);
+    }
 });
 
 module.exports = { app, io };

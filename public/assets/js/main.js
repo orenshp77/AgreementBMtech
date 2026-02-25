@@ -5,6 +5,47 @@
 // API Base URL
 const API_URL = '/api';
 
+// ==================== Global Error Handler ====================
+// Report client-side errors to server for monitoring
+window.onerror = function(message, source, lineno, colno, error) {
+    // Don't report if it's a network error from our own API (those are handled separately)
+    if (source && source.includes('/api/')) return;
+
+    const errorData = {
+        error: message,
+        stack: error?.stack || `at ${source}:${lineno}:${colno}`,
+        page: window.location.pathname,
+        userAgent: navigator.userAgent,
+        timestamp: new Date().toISOString()
+    };
+
+    // Send error to server (fire and forget)
+    fetch('/api/client-error', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(errorData)
+    }).catch(() => {}); // Silent fail
+
+    return false; // Let the error propagate
+};
+
+// Catch unhandled promise rejections
+window.onunhandledrejection = function(event) {
+    const errorData = {
+        error: `Unhandled Promise Rejection: ${event.reason?.message || event.reason}`,
+        stack: event.reason?.stack || 'לא זמין',
+        page: window.location.pathname,
+        userAgent: navigator.userAgent,
+        timestamp: new Date().toISOString()
+    };
+
+    fetch('/api/client-error', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(errorData)
+    }).catch(() => {});
+};
+
 // ==================== Utility Functions ====================
 
 // Show loader
