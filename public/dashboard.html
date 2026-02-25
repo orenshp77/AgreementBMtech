@@ -430,6 +430,18 @@
             }
         }
 
+        // Toggle custom duration field in edit modal
+        function toggleEditCustomDuration() {
+            const durationSelect = document.getElementById('edit-duration');
+            const customDurationInput = document.getElementById('edit-customDuration');
+            if (durationSelect.value === 'other') {
+                customDurationInput.style.display = 'block';
+            } else {
+                customDurationInput.style.display = 'none';
+                customDurationInput.value = '';
+            }
+        }
+
         async function editAgreement(id) {
             try {
                 AppUtils.showLoader('טוען הסכם...');
@@ -473,7 +485,14 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">משך ההסכם (חודשים)</label>
-                                    <input type="number" id="edit-duration" class="swal2-input" value="${agreement.duration || 12}" style="width: 100%; margin: 0;">
+                                    <select id="edit-duration" class="swal2-select" style="width: 100%; margin: 0; padding: 10px; border-radius: 5px; border: 1px solid #d9d9d9;" onchange="toggleEditCustomDuration()">
+                                        <option value="3" ${agreement.duration == 3 ? 'selected' : ''}>3 חודשים</option>
+                                        <option value="6" ${agreement.duration == 6 ? 'selected' : ''}>6 חודשים</option>
+                                        <option value="12" ${agreement.duration == 12 ? 'selected' : ''}>12 חודשים</option>
+                                        <option value="24" ${agreement.duration == 24 ? 'selected' : ''}>24 חודשים</option>
+                                        <option value="other" ${![3,6,12,24].includes(Number(agreement.duration)) && agreement.duration ? 'selected' : ''}>אחר</option>
+                                    </select>
+                                    <input type="text" id="edit-customDuration" class="swal2-input" value="${![3,6,12,24].includes(Number(agreement.duration)) && agreement.duration ? agreement.duration : ''}" placeholder="הזן משך תקופה" style="width: 100%; margin-top: 8px; display: ${![3,6,12,24].includes(Number(agreement.duration)) && agreement.duration ? 'block' : 'none'};">
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">תאריך ההסכם</label>
@@ -494,6 +513,18 @@
                     confirmButtonText: 'שמור שינויים',
                     cancelButtonText: 'ביטול',
                     preConfirm: () => {
+                        const durationSelect = document.getElementById('edit-duration').value;
+                        const customDuration = document.getElementById('edit-customDuration').value.trim();
+                        // Extract only the number from custom duration (e.g., "4 חודש" -> "4")
+                        const customDurationNumber = customDuration.replace(/[^\d]/g, '');
+                        const duration = durationSelect === 'other' ? customDurationNumber : durationSelect;
+
+                        // Validate custom duration if selected
+                        if (durationSelect === 'other' && !customDurationNumber) {
+                            Swal.showValidationMessage('נא להזין משך תקופה (מספר בלבד)');
+                            return false;
+                        }
+
                         return {
                             companyName: document.getElementById('edit-companyName').value,
                             companyId: document.getElementById('edit-companyId').value,
@@ -502,7 +533,7 @@
                             monthlyAmount: Number(document.getElementById('edit-monthlyAmount').value),
                             paymentDay: Number(document.getElementById('edit-paymentDay').value),
                             effectiveDate: document.getElementById('edit-effectiveDate').value,
-                            duration: Number(document.getElementById('edit-duration').value),
+                            duration: duration,
                             agreementDate: document.getElementById('edit-agreementDate').value,
                             notes: document.getElementById('edit-notes').value,
                             selectedServices: {

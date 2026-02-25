@@ -93,13 +93,16 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="duration">משך תקופה בחודשים</label>
-                        <select id="duration" name="duration" class="form-select" required>
+                        <select id="duration" name="duration" class="form-select" required onchange="toggleCustomDuration()">
                             <option value="">בחר תקופה</option>
                             <option value="3">3 חודשים</option>
                             <option value="6">6 חודשים</option>
                             <option value="12">12 חודשים</option>
                             <option value="24">24 חודשים</option>
+                            <option value="other">אחר</option>
                         </select>
+                        <input type="number" id="customDuration" name="customDuration" class="form-input mt-sm"
+                               placeholder="הזן מספר חודשים (לדוגמה: 18)" min="1" style="display: none;">
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="agreementDate">תאריך ההסכם</label>
@@ -187,6 +190,20 @@
             document.getElementById('agreementDate').value = today;
         });
 
+        // Toggle custom duration field
+        function toggleCustomDuration() {
+            const durationSelect = document.getElementById('duration');
+            const customDurationInput = document.getElementById('customDuration');
+            if (durationSelect.value === 'other') {
+                customDurationInput.style.display = 'block';
+                customDurationInput.required = true;
+            } else {
+                customDurationInput.style.display = 'none';
+                customDurationInput.required = false;
+                customDurationInput.value = '';
+            }
+        }
+
         // Handle form submit
         document.getElementById('agreementForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -237,6 +254,12 @@
         }
 
         function getFormData() {
+            const durationSelect = document.getElementById('duration').value;
+            const customDuration = document.getElementById('customDuration').value.trim();
+            // Extract only the number from custom duration (e.g., "4 חודש" -> "4")
+            const customDurationNumber = customDuration.replace(/[^\d]/g, '');
+            const duration = durationSelect === 'other' ? customDurationNumber : durationSelect;
+
             return {
                 type: 'bmatek',
                 companyName: document.getElementById('companyName').value.trim(),
@@ -246,7 +269,7 @@
                 monthlyAmount: document.getElementById('monthlyAmount').value,
                 paymentDay: document.getElementById('paymentDay').value,
                 effectiveDate: document.getElementById('effectiveDate').value,
-                duration: document.getElementById('duration').value,
+                duration: duration,
                 agreementDate: document.getElementById('agreementDate').value || new Date().toISOString().split('T')[0],
                 notes: document.getElementById('notes').value.trim(),
                 selectedServices: {
@@ -264,6 +287,12 @@
             }
             if (!data.monthlyAmount || !data.effectiveDate || !data.duration) {
                 AppUtils.showToast('נא למלא את כל פרטי ההסכם', 'warning');
+                return false;
+            }
+            // Check if custom duration is selected but empty
+            const durationSelect = document.getElementById('duration').value;
+            if (durationSelect === 'other' && !document.getElementById('customDuration').value.trim()) {
+                AppUtils.showToast('נא להזין משך תקופה', 'warning');
                 return false;
             }
             return true;
