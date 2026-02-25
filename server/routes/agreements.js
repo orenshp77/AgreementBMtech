@@ -136,6 +136,53 @@ router.delete('/recycle-bin/:id', verifyToken, isAdmin, async (req, res) => {
     }
 });
 
+// Mark agreement as printed - Must be before /:id route
+router.post('/:id/printed', verifyToken, async (req, res) => {
+    try {
+        const agreementId = req.params.id;
+        const agreement = await Agreements.getById(agreementId);
+
+        if (!agreement) {
+            return res.status(404).json({
+                success: false,
+                message: 'הסכם לא נמצא'
+            });
+        }
+
+        const updatedAgreement = await Agreements.update(agreementId, {
+            printed: true,
+            printedAt: new Date().toISOString(),
+            printedBy: req.user.id,
+            printedByName: req.user.fullName
+        });
+
+        await createLog('INFO', req.user.id, 'Agreement marked as printed', {
+            agreementId,
+            clientName: agreement.companyName
+        }, req);
+
+        // Emit real-time update
+        const io = req.app.get('io');
+        if (io) {
+            io.emit('agreement:updated', updatedAgreement);
+        }
+
+        res.json({
+            success: true,
+            message: 'ההסכם סומן כהודפס',
+            data: updatedAgreement
+        });
+
+    } catch (error) {
+        console.error('Mark printed error:', error);
+        await createLog('ERROR', req.user.id, 'Error marking agreement as printed', { error: error.message }, req);
+        res.status(500).json({
+            success: false,
+            message: 'שגיאה בסימון ההסכם כהודפס'
+        });
+    }
+});
+
 // Get single agreement (for viewing/signing)
 router.get('/:id', async (req, res) => {
     try {

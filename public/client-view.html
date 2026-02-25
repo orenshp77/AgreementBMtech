@@ -397,6 +397,14 @@
             }
         });
 
+        // Handle afterprint - close window if opened for printing
+        window.onafterprint = function() {
+            // If this window was opened from dashboard for printing, close it
+            if (window.opener) {
+                window.close();
+            }
+        };
+
         // Get agreement ID from URL
         const pathParts = window.location.pathname.split('/');
         const agreementId = pathParts[pathParts.length - 1];

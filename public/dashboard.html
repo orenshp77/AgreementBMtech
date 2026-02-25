@@ -98,6 +98,7 @@
                 <table class="table" id="agreementsTable">
                     <thead>
                         <tr>
+                            <th></th>
                             <th>תאריך</th>
                             <th>לקוח</th>
                             <th>סוג</th>
@@ -204,7 +205,7 @@
             if (agreements.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="7" class="text-center text-muted p-lg">
+                        <td colspan="8" class="text-center text-muted p-lg">
                             לא נמצאו הסכמים תואמים
                         </td>
                     </tr>
@@ -212,6 +213,15 @@
             } else {
                 tbody.innerHTML = agreements.map(agreement => `
                     <tr>
+                        <td>
+                            ${(agreement.status === 'signed' || agreement.status === 'completed') ? `
+                                <button class="btn btn-sm"
+                                        style="background: ${agreement.printed ? 'var(--accent-green)' : 'var(--accent-red, #e74c3c)'}; min-width: 90px;"
+                                        onclick="printAgreement('${agreement.id}', ${agreement.printed ? 'true' : 'false'})">
+                                    ${agreement.printed ? 'הודפס' : 'לא הודפס'}
+                                </button>
+                            ` : ''}
+                        </td>
                         <td>${AppUtils.formatDate(agreement.createdAt)}</td>
                         <td>
                             <strong>${agreement.companyName}</strong><br>
@@ -278,6 +288,88 @@
 
         function viewAgreement(id) {
             window.open(`/client/${id}`, '_blank');
+        }
+
+        async function printAgreement(id, alreadyPrinted) {
+            // Open the agreement in a new window
+            const printWindow = window.open(`/client/${id}`, '_blank');
+
+            if (!printWindow) {
+                AppUtils.showError('לא ניתן לפתוח חלון הדפסה. נא לאפשר חלונות קופצים.');
+                return;
+            }
+
+            let confirmationShown = false;
+
+            async function showPrintConfirmation() {
+                if (confirmationShown || alreadyPrinted) return;
+                confirmationShown = true;
+
+                // Close the print window first
+                if (!printWindow.closed) {
+                    printWindow.close();
+                }
+
+                // Focus back to dashboard
+                window.focus();
+
+                // Show confirmation dialog on dashboard
+                const result = await Swal.fire({
+                    title: 'אישור הדפסה',
+                    text: 'האם ההדפסה בוצעה בהצלחה?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'כן, הודפס',
+                    cancelButtonText: 'לא',
+                    confirmButtonColor: '#22c55e',
+                    cancelButtonColor: '#ef4444'
+                });
+
+                if (result.isConfirmed) {
+                    try {
+                        AppUtils.showLoader('מעדכן סטטוס...');
+                        const response = await fetch(`/api/agreements/${id}/printed`, {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': `Bearer ${AppUtils.getToken()}`,
+                                'Content-Type': 'application/json'
+                            }
+                        });
+
+                        const data = await response.json();
+                        AppUtils.hideLoader();
+
+                        if (data.success) {
+                            AppUtils.showToast('ההסכם סומן כהודפס', 'success');
+                            loadAgreements();
+                        } else {
+                            AppUtils.showError(data.message);
+                        }
+                    } catch (error) {
+                        AppUtils.hideLoader();
+                        AppUtils.showError('שגיאה בעדכון סטטוס ההדפסה');
+                    }
+                }
+            }
+
+            // Wait for the window to load, then trigger print
+            printWindow.onload = function() {
+                // Give it a moment to fully render
+                setTimeout(() => {
+                    printWindow.print();
+                }, 1000);
+            };
+
+            // Check if window was closed (after print dialog)
+            const checkPrintClosed = setInterval(() => {
+                if (printWindow.closed) {
+                    clearInterval(checkPrintClosed);
+                    showPrintConfirmation();
+                }
+            }, 500);
+
+            // Stop checking after 5 minutes
+            setTimeout(() => clearInterval(checkPrintClosed), 300000);
         }
 
         async function deleteAgreement(id) {

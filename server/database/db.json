@@ -88,6 +88,131 @@
       "createdAt": "2026-02-18T11:04:25.612Z",
       "updatedAt": "2026-02-18T11:04:25.612Z",
       "deletedAt": "2026-02-19T10:07:27.665Z"
+    },
+    {
+      "id": "13879312-d77e-4d8d-a0e4-07f8da404383",
+      "type": "bmatek",
+      "status": "sent",
+      "createdBy": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "createdByName": "מנהל מערכת",
+      "companyName": "אבי בן גד שיווק דיו וטונרים בעמ",
+      "companyId": "111111111111",
+      "contactName": "ששש",
+      "contactId": "2222",
+      "monthlyAmount": 2000,
+      "paymentDay": 10,
+      "effectiveDate": "2026-02-25",
+      "duration": null,
+      "agreementDate": "2026-02-25",
+      "selectedServices": {
+        "section21": "",
+        "section22": "",
+        "section23": ""
+      },
+      "notes": "בדיקה",
+      "companyTemplate": {
+        "companyName": "Reshet Times",
+        "parentCompany": "במטק בע\"מ",
+        "companyId": "514074442",
+        "address": "דרך חיפה 19, קריית אתא",
+        "phone": "04-8427272",
+        "fax": "04-8409410"
+      },
+      "clientSignature": null,
+      "companyStamp": "514074442",
+      "sentAt": "2026-02-25T09:37:37.951Z",
+      "sentVia": "link",
+      "signedAt": null,
+      "pdfUrl": null,
+      "createdAt": "2026-02-25T09:37:36.514Z",
+      "updatedAt": "2026-02-25T09:37:37.952Z",
+      "sentTo": ""
+    },
+    {
+      "id": "3f1b983a-f70f-4c43-83a0-589379e16a66",
+      "type": "bmatek",
+      "status": "signed",
+      "createdBy": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "createdByName": "מנהל מערכת",
+      "companyName": "שש",
+      "companyId": "1234567890",
+      "contactName": "",
+      "contactId": "",
+      "monthlyAmount": 12222,
+      "paymentDay": 1,
+      "effectiveDate": "2026-02-25",
+      "duration": 4,
+      "agreementDate": "2026-02-25",
+      "selectedServices": {
+        "section21": "",
+        "section22": "",
+        "section23": ""
+      },
+      "notes": "אאא",
+      "companyTemplate": {
+        "companyName": "Reshet Times",
+        "parentCompany": "במטק בע\"מ",
+        "companyId": "514074442",
+        "address": "דרך חיפה 19, קריית אתא",
+        "phone": "04-8427272",
+        "fax": "04-8409410"
+      },
+      "clientSignature": "data:image/png;base64,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",
+      "companyStamp": "514074442",
+      "sentAt": "2026-02-25T09:46:59.880Z",
+      "sentVia": "link",
+      "signedAt": "2026-02-25T12:29:11.902Z",
+      "pdfUrl": null,
+      "createdAt": "2026-02-25T09:46:58.918Z",
+      "updatedAt": "2026-02-25T12:29:35.909Z",
+      "sentTo": "",
+      "printed": true,
+      "printedAt": "2026-02-25T12:29:35.908Z",
+      "printedBy": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "printedByName": "מנהל מערכת"
+    },
+    {
+      "id": "323a375f-2951-4371-8548-480518a57605",
+      "type": "bmatek",
+      "status": "signed",
+      "createdBy": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "createdByName": "מנהל מערכת",
+      "companyName": "Jose",
+      "companyId": "000000000",
+      "contactName": "",
+      "contactId": "",
+      "monthlyAmount": 11111,
+      "paymentDay": 1,
+      "effectiveDate": "2026-02-25",
+      "duration": 6,
+      "agreementDate": "2026-02-25",
+      "selectedServices": {
+        "section21": "",
+        "section22": "",
+        "section23": ""
+      },
+      "notes": "",
+      "companyTemplate": {
+        "companyName": "Reshet Times",
+        "parentCompany": "במטק בע\"מ",
+        "companyId": "514074442",
+        "address": "דרך חיפה 19, קריית אתא",
+        "phone": "04-8427272",
+        "fax": "04-8409410"
+      },
+      "clientSignature": "data:image/png;base64,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",
+      "companyStamp": "514074442",
+      "sentAt": "2026-02-25T11:57:45.878Z",
+      "sentVia": "link",
+      "signedAt": "2026-02-25T11:58:23.178Z",
+      "pdfUrl": null,
+      "createdAt": "2026-02-25T11:57:44.731Z",
+      "updatedAt": "2026-02-25T12:27:04.790Z",
+      "sentTo": "",
+      "printed": true,
+      "printedAt": "2026-02-25T12:27:04.790Z",
+      "printedBy": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "printedByName": "מנהל מערכת"
     }
   ],
   "logs": [
@@ -1173,6 +1298,213 @@
       "details": {
         "agreementId": "28d74948-e3af-4c59-aeaa-8ea41685d90a",
         "clientName": "אורן"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "9cfe8515-0ca1-43c2-9d75-6fcacc2e37ee",
+      "timestamp": "2026-02-25T09:22:08.308Z",
+      "type": "AUTH",
+      "userId": null,
+      "action": "Invalid token",
+      "details": {
+        "error": "jwt expired"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "08148f9b-1e18-46a2-bb9e-5cc484db9b7d",
+      "timestamp": "2026-02-25T09:22:08.310Z",
+      "type": "SECURITY",
+      "userId": null,
+      "action": "Unauthorized access attempt",
+      "details": {
+        "type": "UNAUTHORIZED",
+        "path": "/",
+        "method": "GET",
+        "statusCode": 401
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "583205ad-27c3-4ba2-98ff-39aa722cd16f",
+      "timestamp": "2026-02-25T09:23:45.062Z",
+      "type": "AUTH",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Login successful",
+      "details": {},
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "646306d3-5179-4ae1-9b49-781c8d157080",
+      "timestamp": "2026-02-25T09:37:36.516Z",
+      "type": "INFO",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Agreement created",
+      "details": {
+        "agreementId": "13879312-d77e-4d8d-a0e4-07f8da404383",
+        "type": "bmatek",
+        "clientName": "אבי בן גד שיווק דיו וטונרים בעמ"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "39b4ca48-a499-4a94-a57c-f14b254272a1",
+      "timestamp": "2026-02-25T09:37:37.953Z",
+      "type": "SEND",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Agreement sent via link",
+      "details": {
+        "agreementId": "13879312-d77e-4d8d-a0e4-07f8da404383",
+        "via": "link",
+        "recipient": ""
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "ef368971-9c3e-4ec8-a990-2471ae428a75",
+      "timestamp": "2026-02-25T09:46:58.920Z",
+      "type": "INFO",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Agreement created",
+      "details": {
+        "agreementId": "3f1b983a-f70f-4c43-83a0-589379e16a66",
+        "type": "bmatek",
+        "clientName": "שש"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "85b88ef4-bfec-40f9-a73f-2015832b6fb1",
+      "timestamp": "2026-02-25T09:46:59.882Z",
+      "type": "SEND",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Agreement sent via link",
+      "details": {
+        "agreementId": "3f1b983a-f70f-4c43-83a0-589379e16a66",
+        "via": "link",
+        "recipient": ""
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "4d420aa3-0944-4708-b2ec-b7c38117a697",
+      "timestamp": "2026-02-25T11:57:44.732Z",
+      "type": "INFO",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Agreement created",
+      "details": {
+        "agreementId": "323a375f-2951-4371-8548-480518a57605",
+        "type": "bmatek",
+        "clientName": "Jose"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "c0567a41-b4fd-46b5-a0c9-0ca8551d9d65",
+      "timestamp": "2026-02-25T11:57:45.879Z",
+      "type": "SEND",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Agreement sent via link",
+      "details": {
+        "agreementId": "323a375f-2951-4371-8548-480518a57605",
+        "via": "link",
+        "recipient": ""
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "bec5a782-a4a8-46a6-abd7-5bdcc6f3c54a",
+      "timestamp": "2026-02-25T11:58:23.174Z",
+      "type": "SECURITY",
+      "userId": null,
+      "action": "Suspicious request detected",
+      "details": {
+        "type": "POTENTIAL_ATTACK",
+        "path": "/agreements/323a375f-2951-4371-8548-480518a57605/sign",
+        "method": "POST",
+        "field": "signature",
+        "pattern": "/('|\"|;|--|\\*|\\/\\*|\\*\\/)/",
+        "valuePreview": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgQAAADICAYAAACXt/lwAAAPhUlEQVR4AezdC3bjxhEFUE025nhlTl"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "72d81185-36cc-4f87-8bd5-b70a7f1b4641",
+      "timestamp": "2026-02-25T11:58:23.180Z",
+      "type": "SIGN",
+      "userId": null,
+      "action": "Agreement signed by client",
+      "details": {
+        "agreementId": "323a375f-2951-4371-8548-480518a57605",
+        "clientName": "Jose"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "084e94bc-77d4-486d-a707-02977f11a384",
+      "timestamp": "2026-02-25T12:27:04.792Z",
+      "type": "INFO",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Agreement marked as printed",
+      "details": {
+        "agreementId": "323a375f-2951-4371-8548-480518a57605",
+        "clientName": "Jose"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "73ab1d32-131f-43dc-a969-793ffc6590c6",
+      "timestamp": "2026-02-25T12:29:11.898Z",
+      "type": "SECURITY",
+      "userId": null,
+      "action": "Suspicious request detected",
+      "details": {
+        "type": "POTENTIAL_ATTACK",
+        "path": "/agreements/3f1b983a-f70f-4c43-83a0-589379e16a66/sign",
+        "method": "POST",
+        "field": "signature",
+        "pattern": "/('|\"|;|--|\\*|\\/\\*|\\*\\/)/",
+        "valuePreview": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgQAAADICAYAAACXt/lwAAAP8UlEQVR4AezdAZLiyBEFUNYX8+7JbJ"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "cbd0cce5-3aab-4741-8af4-4234b69983b8",
+      "timestamp": "2026-02-25T12:29:11.905Z",
+      "type": "SIGN",
+      "userId": null,
+      "action": "Agreement signed by client",
+      "details": {
+        "agreementId": "3f1b983a-f70f-4c43-83a0-589379e16a66",
+        "clientName": "שש"
+      },
+      "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "ip": "::1"
+    },
+    {
+      "id": "b471021d-c365-4f8a-81fa-2913a747389c",
+      "timestamp": "2026-02-25T12:29:35.910Z",
+      "type": "INFO",
+      "userId": "ce7f275f-e4a7-4527-b23d-2bea074755e3",
+      "action": "Agreement marked as printed",
+      "details": {
+        "agreementId": "3f1b983a-f70f-4c43-83a0-589379e16a66",
+        "clientName": "שש"
       },
       "platform": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
       "ip": "::1"
