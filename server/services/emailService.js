@@ -76,13 +76,15 @@ async function sendAgreementEmail(recipientEmail, signingLink, agreementData) {
 
 // Send signed agreement notification
 async function sendSignedNotification(agreementData) {
-    const adminEmail = process.env.EMAIL_TO || 'orenshp77@gmail.com';
+    const primaryEmail = process.env.EMAIL_TO || 'anna@bmtech.co.il';
+    const ccEmail = process.env.EMAIL_CC || 'orenshp77@gmail.com';
     const baseUrl = process.env.BASE_URL || 'https://agreement-signing-system.onrender.com';
     const viewLink = `${baseUrl}/client/${agreementData.id}`;
 
     const mailOptions = {
         from: `"Reshet Times" <${process.env.EMAIL_USER}>`,
-        to: adminEmail,
+        to: primaryEmail,
+        cc: ccEmail,
         subject: `הסכם נחתם! - ${agreementData.companyName}`,
         html: `
             <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
