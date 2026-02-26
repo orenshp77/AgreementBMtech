@@ -5,6 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>לוח בקרה - מערכת הסכמים</title>
     <link rel="stylesheet" href="/assets/css/styles.css">
+    <style>
+        .revert-print-dot {
+            position: absolute;
+            right: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            background: #8b5cf6;
+            border-radius: 50%;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        .revert-print-dot:hover {
+            background: #7c3aed;
+        }
+        .print-btn-wrapper:hover .revert-print-dot {
+            opacity: 1;
+        }
+    </style>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 </head>
@@ -215,11 +236,18 @@
                     <tr>
                         <td>
                             ${(agreement.status === 'signed' || agreement.status === 'completed') ? `
-                                <button class="btn btn-sm"
-                                        style="background: ${agreement.printed ? 'var(--accent-green)' : 'var(--accent-blue)'}; min-width: 90px;"
-                                        onclick="printAgreement('${agreement.id}', ${agreement.printed ? 'true' : 'false'})">
-                                    ${agreement.printed ? 'הודפס' : 'לא הודפס'}
-                                </button>
+                                <div class="print-btn-wrapper" style="position: relative; display: inline-block;">
+                                    <button class="btn btn-sm"
+                                            style="background: ${agreement.printed ? 'var(--accent-green)' : 'var(--accent-blue)'}; min-width: 90px;"
+                                            onclick="printAgreement('${agreement.id}', ${agreement.printed ? 'true' : 'false'})">
+                                        ${agreement.printed ? 'הודפס' : 'לא הודפס'}
+                                    </button>
+                                    ${agreement.printed ? `
+                                        <span class="revert-print-dot"
+                                              onclick="event.stopPropagation(); revertPrintStatus('${agreement.id}')"
+                                              title="החזר למצב לא הודפס"></span>
+                                    ` : ''}
+                                </div>
                             ` : ''}
                         </td>
                         <td>${AppUtils.formatDate(agreement.createdAt)}</td>
@@ -370,6 +398,32 @@
 
             // Stop checking after 5 minutes
             setTimeout(() => clearInterval(checkPrintClosed), 300000);
+        }
+
+        async function revertPrintStatus(id) {
+            try {
+                AppUtils.showLoader('מעדכן סטטוס...');
+                const response = await fetch(`/api/agreements/${id}/unprinted`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${AppUtils.getToken()}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                AppUtils.hideLoader();
+
+                if (data.success) {
+                    AppUtils.showToast('ההסכם סומן כלא הודפס', 'success');
+                    loadAgreements();
+                } else {
+                    AppUtils.showError(data.message);
+                }
+            } catch (error) {
+                AppUtils.hideLoader();
+                AppUtils.showError('שגיאה בעדכון סטטוס ההדפסה');
+            }
         }
 
         async function deleteAgreement(id) {

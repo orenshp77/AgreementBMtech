@@ -183,6 +183,53 @@ router.post('/:id/printed', verifyToken, async (req, res) => {
     }
 });
 
+// Mark agreement as NOT printed (revert)
+router.post('/:id/unprinted', verifyToken, async (req, res) => {
+    try {
+        const agreementId = req.params.id;
+        const agreement = await Agreements.getById(agreementId);
+
+        if (!agreement) {
+            return res.status(404).json({
+                success: false,
+                message: 'הסכם לא נמצא'
+            });
+        }
+
+        const updatedAgreement = await Agreements.update(agreementId, {
+            printed: false,
+            printedAt: null,
+            printedBy: null,
+            printedByName: null
+        });
+
+        await createLog('INFO', req.user.id, 'Agreement marked as NOT printed', {
+            agreementId,
+            clientName: agreement.companyName
+        }, req);
+
+        // Emit real-time update
+        const io = req.app.get('io');
+        if (io) {
+            io.emit('agreement:updated', updatedAgreement);
+        }
+
+        res.json({
+            success: true,
+            message: 'ההסכם סומן כלא הודפס',
+            data: updatedAgreement
+        });
+
+    } catch (error) {
+        console.error('Mark unprinted error:', error);
+        await createLog('ERROR', req.user.id, 'Error marking agreement as not printed', { error: error.message }, req);
+        res.status(500).json({
+            success: false,
+            message: 'שגיאה בסימון ההסכם כלא הודפס'
+        });
+    }
+});
+
 // Get single agreement (for viewing/signing)
 router.get('/:id', async (req, res) => {
     try {
