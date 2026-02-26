@@ -39,6 +39,10 @@ CREATE TABLE IF NOT EXISTS agreements (
     signed_at TIMESTAMP,
     pdf_url TEXT,
     drive_backup JSONB,
+    printed BOOLEAN DEFAULT FALSE,
+    printed_at TIMESTAMP DEFAULT NULL,
+    printed_by UUID DEFAULT NULL,
+    printed_by_name VARCHAR(255) DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP DEFAULT NULL
@@ -50,6 +54,27 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns
                    WHERE table_name = 'agreements' AND column_name = 'deleted_at') THEN
         ALTER TABLE agreements ADD COLUMN deleted_at TIMESTAMP DEFAULT NULL;
+    END IF;
+END $$;
+
+-- Add print tracking columns if they don't exist
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                   WHERE table_name = 'agreements' AND column_name = 'printed') THEN
+        ALTER TABLE agreements ADD COLUMN printed BOOLEAN DEFAULT FALSE;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                   WHERE table_name = 'agreements' AND column_name = 'printed_at') THEN
+        ALTER TABLE agreements ADD COLUMN printed_at TIMESTAMP DEFAULT NULL;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                   WHERE table_name = 'agreements' AND column_name = 'printed_by') THEN
+        ALTER TABLE agreements ADD COLUMN printed_by UUID DEFAULT NULL;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                   WHERE table_name = 'agreements' AND column_name = 'printed_by_name') THEN
+        ALTER TABLE agreements ADD COLUMN printed_by_name VARCHAR(255) DEFAULT NULL;
     END IF;
 END $$;
 

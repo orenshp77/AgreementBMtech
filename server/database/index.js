@@ -271,7 +271,9 @@ const Agreements = {
             effectiveDate: 'effective_date', duration: 'duration', agreementDate: 'agreement_date',
             notes: 'notes', clientSignature: 'client_signature', companyStamp: 'company_stamp',
             sentAt: 'sent_at', sentVia: 'sent_via', sentTo: 'sent_to',
-            signedAt: 'signed_at', pdfUrl: 'pdf_url'
+            signedAt: 'signed_at', pdfUrl: 'pdf_url',
+            printed: 'printed', printedAt: 'printed_at',
+            printedBy: 'printed_by', printedByName: 'printed_by_name'
         };
 
         const jsonFields = {
