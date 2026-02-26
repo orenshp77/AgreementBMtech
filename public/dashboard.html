@@ -216,7 +216,7 @@
                         <td>
                             ${(agreement.status === 'signed' || agreement.status === 'completed') ? `
                                 <button class="btn btn-sm"
-                                        style="background: ${agreement.printed ? 'var(--accent-green)' : 'var(--accent-red, #e74c3c)'}; min-width: 90px;"
+                                        style="background: ${agreement.printed ? 'var(--accent-green)' : 'var(--accent-blue)'}; min-width: 90px;"
                                         onclick="printAgreement('${agreement.id}', ${agreement.printed ? 'true' : 'false'})">
                                     ${agreement.printed ? 'הודפס' : 'לא הודפס'}
                                 </button>
@@ -322,7 +322,7 @@
                     confirmButtonText: 'כן, הודפס',
                     cancelButtonText: 'לא',
                     confirmButtonColor: '#22c55e',
-                    cancelButtonColor: '#ef4444'
+                    cancelButtonColor: '#3b82f6'
                 });
 
                 if (result.isConfirmed) {

@@ -196,12 +196,12 @@ a:hover {
 }
 
 .btn-danger {
-    background-color: var(--accent-red);
+    background-color: var(--accent-blue);
     color: white;
 }
 
 .btn-danger:hover:not(:disabled) {
-    background-color: #dc2626;
+    background-color: var(--accent-blue-hover);
 }
 
 .btn-secondary {
@@ -315,7 +315,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 }
 
 .form-error {
-    color: var(--accent-red);
+    color: var(--accent-blue);
     font-size: 0.875rem;
     margin-top: var(--spacing-xs);
 }
@@ -417,7 +417,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 .text-muted { color: var(--text-muted); }
 .text-secondary { color: var(--text-secondary); }
 .text-success { color: var(--accent-green); }
-.text-danger { color: var(--accent-red); }
+.text-danger { color: var(--accent-blue); }
 .text-warning { color: var(--accent-orange); }
 
 .font-bold { font-weight: 700; }
@@ -519,7 +519,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 }
 
 #userName {
-    color: var(--accent-red) !important;
+    color: var(--accent-blue) !important;
     font-weight: 700;
 }
 
@@ -581,8 +581,8 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 }
 
 .badge-error {
-    background-color: rgba(239, 68, 68, 0.2);
-    color: var(--accent-red);
+    background-color: rgba(59, 130, 246, 0.2);
+    color: var(--accent-blue);
 }
 
 /* Agreement Type Cards */
