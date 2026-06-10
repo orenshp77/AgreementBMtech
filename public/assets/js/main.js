@@ -159,7 +159,15 @@ async function apiRequest(endpoint, options = {}) {
 
     try {
         const response = await fetch(`${API_URL}${endpoint}`, config);
-        const data = await response.json();
+
+        let data;
+        try {
+            const text = await response.text();
+            data = text ? JSON.parse(text) : {};
+        } catch (parseError) {
+            console.error('Failed to parse response:', parseError);
+            throw new Error('שגיאה בתקשורת עם השרת');
+        }
 
         if (!response.ok) {
             // Handle unauthorized
