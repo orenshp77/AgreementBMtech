@@ -276,6 +276,9 @@ const Agreements = {
             printedBy: 'printed_by', printedByName: 'printed_by_name'
         };
 
+        // Date/timestamp fields that must be null instead of empty string for PostgreSQL
+        const dateTimeCols = new Set(['effective_date', 'agreement_date', 'sent_at', 'signed_at', 'printed_at']);
+
         const jsonFields = {
             selectedServices: 'selected_services',
             companyTemplate: 'company_template',
@@ -285,7 +288,9 @@ const Agreements = {
         for (const [jsKey, dbKey] of Object.entries(fieldMappings)) {
             if (updates[jsKey] !== undefined) {
                 setClauses.push(`${dbKey} = $${paramIndex++}`);
-                values.push(updates[jsKey]);
+                // Convert empty strings to null for date/timestamp columns
+                const val = updates[jsKey];
+                values.push(dateTimeCols.has(dbKey) && (val === '' || (typeof val === 'string' && val.trim() === '')) ? null : val);
             }
         }
 

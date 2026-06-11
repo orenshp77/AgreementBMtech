@@ -406,10 +406,12 @@ router.put('/:id', verifyToken, async (req, res) => {
         delete updates.createdAt;
         delete updates.clientSignature;
 
-        // Convert empty date strings to null for PostgreSQL
-        const dateFields = ['effectiveDate', 'agreementDate', 'signedAt', 'sentAt'];
+        // Convert empty date/timestamp strings to null for PostgreSQL
+        const dateFields = ['effectiveDate', 'agreementDate', 'signedAt', 'sentAt', 'printedAt'];
         dateFields.forEach(field => {
-            if (updates[field] === '') updates[field] = null;
+            if (updates[field] !== undefined && (updates[field] === '' || (typeof updates[field] === 'string' && updates[field].trim() === ''))) {
+                updates[field] = null;
+            }
         });
 
         const updatedAgreement = await Agreements.update(agreementId, updates);
