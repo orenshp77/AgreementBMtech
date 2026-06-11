@@ -118,6 +118,25 @@ app.use('/api/users', usersRoutes);
 app.use('/api/agreements', agreementsRoutes);
 app.use('/api/logs', logsRoutes);
 
+// Test error email endpoint
+const { sendErrorNotification } = require('./services/emailService');
+app.get('/api/test-error-email', async (req, res) => {
+    try {
+        await sendErrorNotification({
+            action: 'Test error email',
+            error: 'זוהי שגיאה לבדיקה בלבד - ניתן להתעלם',
+            endpoint: '/api/test-error-email',
+            method: 'GET',
+            timestamp: new Date().toISOString(),
+            stack: 'No real stack trace - this is a test',
+            details: { test: true, message: 'בדיקת מייל שגיאה' }
+        });
+        res.json({ success: true, message: 'מייל בדיקה נשלח בהצלחה' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'שליחה נכשלה', error: err.message });
+    }
+});
+
 // Serve frontend pages
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../public/index.html'));

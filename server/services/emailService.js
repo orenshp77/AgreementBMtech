@@ -201,7 +201,7 @@ ${JSON.stringify(details, null, 2)}
         html: `
             <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
                 <div style="background: linear-gradient(135deg, #dc2626, #b91c1c); padding: 20px; border-radius: 10px 10px 0 0;">
-                    <h1 style="color: #fff; margin: 0; text-align: center;">⚠️ התראת שגיאה</h1>
+                    <h1 style="color: #fff; margin: 0; text-align: center;">⚠️ התראת שגיאה אתר מערכת הסכמים BMTECH</h1>
                 </div>
 
                 <div style="background: #fef2f2; padding: 30px; border-radius: 0 0 10px 10px;">
