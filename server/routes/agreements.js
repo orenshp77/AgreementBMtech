@@ -27,6 +27,37 @@ router.get('/', verifyToken, async (req, res) => {
     }
 });
 
+// Get unique contacts from existing agreements
+router.get('/contacts', verifyToken, async (req, res) => {
+    try {
+        const agreements = await Agreements.getAll();
+        const contactsMap = new Map();
+
+        agreements.forEach(ag => {
+            if (!ag.companyName) return;
+            const key = ag.companyId || ag.companyName;
+            // Keep the most recent data for each contact
+            if (!contactsMap.has(key) || new Date(ag.createdAt) > new Date(contactsMap.get(key).createdAt)) {
+                contactsMap.set(key, {
+                    companyName: ag.companyName,
+                    companyId: ag.companyId || '',
+                    contactName: ag.contactName || '',
+                    contactId: ag.contactId || '',
+                    lastUsed: ag.createdAt
+                });
+            }
+        });
+
+        const contacts = Array.from(contactsMap.values())
+            .sort((a, b) => a.companyName.localeCompare(b.companyName, 'he'));
+
+        res.json({ success: true, data: contacts });
+    } catch (error) {
+        console.error('Get contacts error:', error);
+        res.status(500).json({ success: false, message: 'שגיאה בטעינת אנשי קשר' });
+    }
+});
+
 // ============== RECYCLE BIN ROUTES (Admin Only) - Must be before /:id ==============
 
 // Get all deleted agreements (recycle bin)
